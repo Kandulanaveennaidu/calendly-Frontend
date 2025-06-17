@@ -508,15 +508,8 @@ const PublicScheduling = () => {
             style={{
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 minHeight: '100vh'
-            }}
-        >
+            }}>
             <Container className="py-5">
-                {/* Meeting ID Debug Info (remove in production) */}
-                {process.env.NODE_ENV === 'development' && (
-                    <div className="text-center mb-3">
-                        <small className="text-white-50">Debug: Meeting ID = {meetingId}</small>
-                    </div>
-                )}
 
                 <Row className="justify-content-center">
                     {/* Main Content Card */}
@@ -1184,7 +1177,7 @@ const PublicScheduling = () => {
 
                         <Button
                             variant="primary"
-                            onClick={() => navigate('/')}
+                            // onClick={() => navigate('/')}
                             className="px-4 py-2"
                             style={{ borderRadius: '10px', fontWeight: '600' }}
                         >

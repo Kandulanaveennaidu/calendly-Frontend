@@ -239,9 +239,9 @@ const Login = () => {
                                         <Form.Group className="mb-4">
                                             <div className="d-flex justify-content-between">
                                                 <Form.Label>Password</Form.Label>
-                                                <Link to="/forgot-password" className="text-primary small">
+                                                {/* <Link to="/forgot-password" className="text-primary small">
                                                     Forgot Password?
-                                                </Link>
+                                                </Link> */}
                                             </div>
                                             <div className="input-group">
                                                 <span className="input-group-text bg-light border-end-0">
@@ -291,7 +291,7 @@ const Login = () => {
                                                 </>
                                             )}
                                         </Button>
-
+{/* 
                                         <div className="text-center mb-4">
                                             <p className="text-muted small mb-0">Or sign in with</p>
                                             <div className="d-flex justify-content-center gap-2 mt-3">
@@ -302,7 +302,7 @@ const Login = () => {
                                                     <FiGithub />
                                                 </Button>
                                             </div>
-                                        </div>
+                                        </div> */}
 
                                         <div className="text-center">
                                             <p className="mb-0">

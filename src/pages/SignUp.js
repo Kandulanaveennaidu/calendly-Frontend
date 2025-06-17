@@ -372,7 +372,7 @@ const SignUp = () => {
                                             )}
                                         </Button>
 
-                                        <div className="text-center mb-4">
+                                        {/* <div className="text-center mb-4">
                                             <p className="text-muted small mb-0">Or sign up with</p>
                                             <div className="d-flex justify-content-center gap-2 mt-3">
                                                 <Button variant="outline-secondary" className="btn-icon">
@@ -382,7 +382,7 @@ const SignUp = () => {
                                                     <FiGithub />
                                                 </Button>
                                             </div>
-                                        </div>
+                                        </div> */}
 
                                         <div className="text-center">
                                             <p className="mb-0">

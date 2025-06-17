@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Navbar, Nav, Container, Button, Dropdown, Badge, Modal, Form, NavDropdown } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { FiCalendar, FiUser, FiMenu, FiBell, FiSettings, FiLogOut } from 'react-icons/fi';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import meetingService from '../../services/meetingService';
 import notificationService from '../../services/notificationService';
@@ -10,6 +10,7 @@ import notificationService from '../../services/notificationService';
 const CustomNavbar = () => {
     const { currentUser, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const [expanded, setExpanded] = useState(false);
     const [showScheduleModal, setShowScheduleModal] = useState(false);
     const [scheduleLoading, setScheduleLoading] = useState(false);
@@ -209,6 +210,18 @@ const CustomNavbar = () => {
         // Navigation is handled in the logout function
     };
 
+    // Check if current route is active
+    const isActiveRoute = (path) => {
+        return location.pathname === path;
+    };
+
+    // Get active link classes
+    const getNavLinkClasses = (path) => {
+        const baseClasses = "mx-2 nav-link-custom";
+        const activeClasses = "active-nav-link";
+        return isActiveRoute(path) ? `${baseClasses} ${activeClasses}` : baseClasses;
+    };
+
     // Add navigation handler for brand link - Fixed to prevent logout
     const handleBrandClick = (e) => {
         e.preventDefault();
@@ -248,19 +261,31 @@ const CustomNavbar = () => {
                             <Nav className="ms-auto align-items-lg-center">
                                 {currentUser ? (
                                     <>
-                                        <Nav.Link as={Link} to="/dashboard" className="mx-2">
+                                        <Nav.Link
+                                            as={Link}
+                                            to="/dashboard"
+                                            className={getNavLinkClasses('/dashboard')}
+                                        >
                                             Dashboard
                                         </Nav.Link>
-                                        <Nav.Link as={Link} to="/calendar" className="mx-2">
+                                        <Nav.Link
+                                            as={Link}
+                                            to="/calendar"
+                                            className={getNavLinkClasses('/calendar')}
+                                        >
                                             Calendar
                                         </Nav.Link>
-                                        <Nav.Link as={Link} to="/meetings" className="mx-2">
+                                        <Nav.Link
+                                            as={Link}
+                                            to="/meetings"
+                                            className={getNavLinkClasses('/meetings')}
+                                        >
                                             Meetings
                                         </Nav.Link>
 
                                         {/* Schedule Button */}
                                         <Button
-                                            variant="outline-primary"
+                                            variant="outline-success"
                                             className="btn-modern mx-2"
                                             onClick={() => setShowScheduleModal(true)}
                                         >
@@ -674,6 +699,45 @@ const CustomNavbar = () => {
                     </Modal.Body>
                 </Modal>
             )}
+
+            {/* Add custom styles for active navigation */}
+            <style jsx global>{`
+                .nav-link-custom {
+                    position: relative;
+                    transition: all 0.3s ease;
+                    color: #6c757d !important;
+                    font-weight: 500;
+                    padding: 8px 16px !important;
+                    border-radius: 8px;
+                    margin: 0 4px;
+                }
+
+                .nav-link-custom:hover {
+                    color: #0d6efd !important;
+                    background-color: rgba(13, 110, 253, 0.1);
+                    transform: translateY(-1px);
+                }
+
+                .active-nav-link {
+                    color: #0d6efd !important;
+                    background-color: rgba(13, 110, 253, 0.1);
+                    font-weight: 600;
+                    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+                }
+
+                /* Additional styling for mobile */
+                @media (max-width: 991.98px) {
+                    .nav-link-custom {
+                        margin: 2px 0;
+                        padding: 12px 16px !important;
+                    }
+                    
+                    .active-nav-link {
+                        border-left: 3px solid #0d6efd;
+                        padding-left: 13px !important;
+                    }
+                }
+            `}</style>
         </>
     );
 };
