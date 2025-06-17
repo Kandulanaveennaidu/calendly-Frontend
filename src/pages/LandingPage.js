@@ -164,7 +164,7 @@ const LandingPage = () => {
             </div>
 
             {/* Hero Section */}
-            <motion.section 
+            <motion.section
                 className="hero-section"
                 style={{ y }}
             >
@@ -177,7 +177,7 @@ const LandingPage = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 1, ease: "easeOut" }}
                             >
-                                <div className="brand-container mb-5">
+                                {/* <div className="brand-container mb-5">
                                     <motion.div
                                         className="brand-logo"
                                         whileHover={{ scale: 1.05, rotate: 5 }}
@@ -186,18 +186,18 @@ const LandingPage = () => {
                                         <FiCalendar size={48} />
                                     </motion.div>
                                     <h1 className="brand-name">ScheduleMe</h1>
-                                </div>
-                                
+                                </div> */}
+
                                 <h2 className="hero-title mb-4">
                                     The Future of
                                     <span className="gradient-text"> Smart Scheduling</span>
                                 </h2>
-                                
+
                                 <p className="hero-subtitle mb-5">
-                                    Experience the next generation of meeting management with AI-powered scheduling, 
+                                    Experience the next generation of meeting management with AI-powered scheduling,
                                     seamless integrations, and beautiful user experiences that your clients will love.
                                 </p>
-                                
+
                                 <div className="hero-buttons mb-5">
                                     <motion.div
                                         whileHover={{ scale: 1.05 }}
@@ -212,7 +212,7 @@ const LandingPage = () => {
                                             <FiArrowRight className="ms-2" />
                                         </Button>
                                     </motion.div>
-                                    
+
                                     <motion.div
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -227,7 +227,7 @@ const LandingPage = () => {
                                         </Button>
                                     </motion.div>
                                 </div>
-                                
+
                                 <div className="hero-badges">
                                     <Badge className="hero-badge me-3">
                                         <FiCheck className="me-2" />
@@ -244,7 +244,7 @@ const LandingPage = () => {
                                 </div>
                             </motion.div>
                         </Col>
-                        
+
                         <Col lg={6}>
                             <motion.div
                                 initial={{ opacity: 0, x: 100, scale: 0.8 }}
@@ -261,7 +261,7 @@ const LandingPage = () => {
                                         </div>
                                         <div className="dashboard-title">ScheduleMe Dashboard</div>
                                     </div>
-                                    
+
                                     <div className="dashboard-content">
                                         <div className="calendar-preview">
                                             <div className="calendar-grid">
@@ -272,7 +272,7 @@ const LandingPage = () => {
                                                 ))}
                                             </div>
                                         </div>
-                                        
+
                                         <div className="meeting-cards">
                                             <motion.div
                                                 className="meeting-card"
@@ -285,7 +285,7 @@ const LandingPage = () => {
                                                     <div className="meeting-time">Today, 10:00 AM</div>
                                                 </div>
                                             </motion.div>
-                                            
+
                                             <motion.div
                                                 className="meeting-card"
                                                 animate={{ y: [0, -10, 0] }}
@@ -300,10 +300,10 @@ const LandingPage = () => {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <motion.div
                                     className="floating-notification"
-                                    animate={{ 
+                                    animate={{
                                         y: [0, -20, 0],
                                         opacity: [0.8, 1, 0.8]
                                     }}
@@ -351,7 +351,7 @@ const LandingPage = () => {
             </section>
 
             {/* Features Section */}
-            <section className="features-section">
+            <section id="features" className="features-section">
                 <Container>
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
@@ -364,11 +364,11 @@ const LandingPage = () => {
                             Powerful Features for Modern Teams
                         </h2>
                         <p className="section-subtitle">
-                            Experience scheduling like never before with our cutting-edge features 
+                            Experience scheduling like never before with our cutting-edge features
                             designed to make your workflow seamless and efficient.
                         </p>
                     </motion.div>
-                    
+
                     <Row>
                         {features.map((feature, index) => (
                             <Col md={6} lg={4} key={index} className="mb-5">
@@ -381,7 +381,7 @@ const LandingPage = () => {
                                 >
                                     <Card className="feature-card h-100">
                                         <Card.Body className="p-4">
-                                            <div 
+                                            <div
                                                 className="feature-icon-container mb-4"
                                                 style={{ background: feature.color }}
                                             >
@@ -399,7 +399,7 @@ const LandingPage = () => {
             </section>
 
             {/* Pricing Section */}
-            <section className="pricing-section">
+            <section id="pricing" className="pricing-section">
                 <Container>
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
@@ -415,7 +415,7 @@ const LandingPage = () => {
                             Flexible pricing that grows with your business. Start free and upgrade when you're ready.
                         </p>
                     </motion.div>
-                    
+
                     <Row className="justify-content-center">
                         {pricingPlans.map((plan, index) => (
                             <Col md={6} lg={4} key={index} className="mb-4">
@@ -433,22 +433,22 @@ const LandingPage = () => {
                                                 Most Popular
                                             </div>
                                         )}
-                                        
+
                                         <Card.Body className="p-4 text-center">
-                                            <div 
+                                            <div
                                                 className="plan-icon mb-4"
                                                 style={{ background: plan.gradient }}
                                             >
                                                 <FiCalendar size={32} />
                                             </div>
-                                            
+
                                             <h4 className="plan-name mb-3">{plan.name}</h4>
-                                            
+
                                             <div className="plan-price mb-4">
                                                 <span className="price-amount">{plan.price}</span>
                                                 <span className="price-period">/{plan.period}</span>
                                             </div>
-                                            
+
                                             <ul className="plan-features mb-4">
                                                 {plan.features.map((feature, featureIndex) => (
                                                     <li key={featureIndex}>
@@ -457,7 +457,7 @@ const LandingPage = () => {
                                                     </li>
                                                 ))}
                                             </ul>
-                                            
+
                                             <motion.div
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.95 }}
@@ -496,7 +496,7 @@ const LandingPage = () => {
                             Join thousands of satisfied customers who have transformed their scheduling workflow
                         </p>
                     </motion.div>
-                    
+
                     <Row>
                         {testimonials.map((testimonial, index) => (
                             <Col md={6} lg={4} key={index} className="mb-4">
@@ -519,11 +519,11 @@ const LandingPage = () => {
                                                     {testimonial.metric}
                                                 </div>
                                             </div>
-                                            
+
                                             <p className="testimonial-text mb-4">
                                                 "{testimonial.text}"
                                             </p>
-                                            
+
                                             <div className="testimonial-author">
                                                 <img
                                                     src={testimonial.image}
@@ -565,7 +565,7 @@ const LandingPage = () => {
                                         Join over 50,000 professionals who trust ScheduleMe to manage their time effectively.
                                         Start your free trial today and see the difference.
                                     </p>
-                                    
+
                                     <div className="cta-buttons">
                                         <motion.div
                                             whileHover={{ scale: 1.05 }}
@@ -581,7 +581,7 @@ const LandingPage = () => {
                                                 <FiArrowRight className="ms-2" />
                                             </Button>
                                         </motion.div>
-                                        
+
                                         <motion.div
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
@@ -596,7 +596,7 @@ const LandingPage = () => {
                                             </Button>
                                         </motion.div>
                                     </div>
-                                    
+
                                     <div className="cta-features mt-5">
                                         <div className="cta-feature">
                                             <FiCheck className="me-2" />
@@ -628,7 +628,7 @@ const LandingPage = () => {
                                 <h5 className="brand-name mb-0">ScheduleMe</h5>
                             </div>
                             <p className="footer-description mb-4">
-                                The most intuitive scheduling platform that helps professionals and teams 
+                                The most intuitive scheduling platform that helps professionals and teams
                                 manage their time effectively with AI-powered automation.
                             </p>
                             <div className="social-links">
@@ -643,7 +643,7 @@ const LandingPage = () => {
                                 </Button>
                             </div>
                         </Col>
-                        
+
                         <Col md={6} lg={2} className="mb-4">
                             <h6 className="footer-title">Product</h6>
                             <ul className="footer-links">
@@ -654,7 +654,7 @@ const LandingPage = () => {
                                 <li><a href="#">Mobile Apps</a></li>
                             </ul>
                         </Col>
-                        
+
                         <Col md={6} lg={2} className="mb-4">
                             <h6 className="footer-title">Company</h6>
                             <ul className="footer-links">
@@ -665,7 +665,7 @@ const LandingPage = () => {
                                 <li><a href="#">Contact</a></li>
                             </ul>
                         </Col>
-                        
+
                         <Col md={6} lg={2} className="mb-4">
                             <h6 className="footer-title">Support</h6>
                             <ul className="footer-links">
@@ -676,7 +676,7 @@ const LandingPage = () => {
                                 <li><a href="#">Security</a></li>
                             </ul>
                         </Col>
-                        
+
                         <Col md={6} lg={2} className="mb-4">
                             <h6 className="footer-title">Newsletter</h6>
                             <p className="newsletter-text mb-3">
@@ -694,9 +694,9 @@ const LandingPage = () => {
                             </Form>
                         </Col>
                     </Row>
-                    
+
                     <hr className="footer-divider" />
-                    
+
                     <Row className="align-items-center">
                         <Col md={6}>
                             <p className="copyright">

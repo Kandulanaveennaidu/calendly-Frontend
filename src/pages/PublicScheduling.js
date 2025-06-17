@@ -57,6 +57,9 @@ const PublicScheduling = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+    // Add a new state to control showing booking details after modal closes
+    const [showBookingDetails, setShowBookingDetails] = useState(false);
+
     // Load timezones on component mount
     useEffect(() => {
         loadTimezones();
@@ -349,6 +352,7 @@ const PublicScheduling = () => {
             if (response.success) {
                 setSuccess('Meeting booked successfully!');
                 setShowConfirmModal(true);
+                setShowBookingDetails(true); // Also show booking details
             } else {
                 setError(response.message || 'Failed to book meeting');
             }
@@ -1177,7 +1181,7 @@ const PublicScheduling = () => {
 
                         <Button
                             variant="primary"
-                            // onClick={() => navigate('/')}
+                            onClick={() => setShowConfirmModal(false)}
                             className="px-4 py-2"
                             style={{ borderRadius: '10px', fontWeight: '600' }}
                         >
@@ -1185,10 +1189,33 @@ const PublicScheduling = () => {
                         </Button>
                     </Modal.Body>
                 </Modal>
-            </Container>
 
-            {/* Enhanced Custom Styles */}
-            <style jsx>{`
+                {/* Conditionally render booking details card */}
+                {showBookingDetails && !showConfirmModal && (
+                    <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '15px', backgroundColor: '#f8f9fa' }}>
+                        <Card.Body className="p-3">
+                            <h6 className="fw-semibold mb-2 text-primary">{meetingType?.name || 'Meeting'}</h6>
+                            <div className="small text-muted">
+                                <div className="mb-1">{selectedDate?.toLocaleDateString('en-US', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                }) || 'Date not available'}</div>
+                                <div className="mb-1">
+                                    {selectedTimeSlot && selectedTimeZone ?
+                                        formatTimeInTimeZone(selectedTimeSlot, selectedTimeZone) :
+                                        'Time not available'
+                                    }
+                                </div>
+                                <div>{getTimezoneLabel(selectedTimeZone)}</div>
+                            </div>
+                        </Card.Body>
+                    </Card>
+                )}
+
+                {/* Enhanced Custom Styles */}
+                <style jsx>{`
                 .modern-calendar {
                     border-radius: 10px;
                     overflow: hidden;
@@ -1319,6 +1346,7 @@ const PublicScheduling = () => {
                     }
                 }
             `}</style>
+            </Container>
         </motion.div>
     );
 };

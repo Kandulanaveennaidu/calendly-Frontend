@@ -234,6 +234,15 @@ const CustomNavbar = () => {
         }
     };
 
+    // Smooth scroll handler
+    const handleScrollToSection = (sectionId) => {
+        const el = document.getElementById(sectionId);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+            setExpanded(false); // close mobile menu if open
+        }
+    };
+
     return (
         <>
             <motion.div
@@ -414,7 +423,7 @@ const CustomNavbar = () => {
                                                     <FiSettings className="me-2" />
                                                     Settings
                                                 </Dropdown.Item> */}
-                                                <Dropdown.Divider />
+                                                {/* <Dropdown.Divider /> */}
                                                 <Dropdown.Item onClick={handleLogout}>
                                                     <FiLogOut className="me-2" />
                                                     Logout
@@ -434,9 +443,9 @@ const CustomNavbar = () => {
                                 ) : (
                                     <>
                                         {/* Show login/signup buttons when not authenticated */}
-                                        <Nav.Link href="#features" className="mx-2">Features</Nav.Link>
-                                        <Nav.Link href="#pricing" className="mx-2">Pricing</Nav.Link>
-                                        <Nav.Link href="#contact" className="mx-2">Contact</Nav.Link>
+                                        <Nav.Link as="span" className="mx-2" onClick={() => handleScrollToSection('features')}>Features</Nav.Link>
+                                        <Nav.Link as="span" className="mx-2" onClick={() => handleScrollToSection('pricing')}>Pricing</Nav.Link>
+                                        <Nav.Link as="span" className="mx-2" onClick={() => handleScrollToSection('contact')}>Contact</Nav.Link>
 
                                         <div className="d-flex gap-2 ms-3">
                                             <Button
