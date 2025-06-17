@@ -1,0 +1,77 @@
+/* Custom styling for react-calendar component to ensure text visibility */
+
+/* Improve overall calendar styles */
+.react-calendar {
+  width: 100%;
+  border: none;
+  font-family: inherit;
+}
+
+/* Fix active day styling */
+.react-calendar__tile--active {
+  background: var(--primary-color, #0d6efd);
+  color: white !important;
+  font-weight: bold;
+}
+
+/* Fix hover state for days */
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #212529 !important;
+}
+
+/* Ensure text is visible on active days */
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: var(--primary-color, #0d6efd);
+  color: white !important;
+}
+
+/* Fix color contrast for event indicators */
+.event-indicator {
+  color: white !important;
+  font-weight: 500;
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin-top: 2px;
+  font-size: 0.6rem;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* Color variants for event indicators */
+.event-indicator-primary {
+  background-color: var(--primary-color, #0d6efd);
+}
+
+.event-indicator-success {
+  background-color: var(--success, #198754);
+}
+
+.event-indicator-warning {
+  background-color: var(--warning, #ffc107);
+  color: #212529 !important;
+  text-shadow: none;
+}
+
+.event-indicator-info {
+  background-color: var(--info, #0dcaf0);
+  color: #212529 !important;
+  text-shadow: none;
+}
+
+.event-indicator-secondary {
+  background-color: var(--secondary, #6c757d);
+}
+
+/* Fix "more" indicator styling */
+.more-events {
+  font-size: 0.6rem;
+  color: #6c757d;
+  margin-top: 2px;
+}

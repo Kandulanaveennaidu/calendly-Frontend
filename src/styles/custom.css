@@ -1,0 +1,119 @@
+/* Custom tooltips styling */
+.custom-tooltip {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  opacity: 0.95;
+  margin-bottom: 0.25rem;
+  background-color: rgba(33, 37, 41, 0.95);
+  color: white !important;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Make buttons show pointer cursor */
+button,
+.dropdown-toggle {
+  cursor: pointer !important;
+}
+
+/* Ensure text on colored backgrounds is readable */
+.bg-primary,
+.btn-primary,
+.badge-primary {
+  color: white !important;
+  font-weight: 500;
+}
+
+.bg-success,
+.btn-success,
+.badge-success {
+  color: white !important;
+}
+
+.bg-warning,
+.btn-warning,
+.badge-warning {
+  color: #212529 !important;
+}
+
+.bg-info,
+.btn-info,
+.badge-info {
+  color: #212529 !important;
+}
+
+.bg-danger,
+.btn-danger,
+.badge-danger {
+  color: white !important;
+}
+
+/* Fix hover and active state contrast issues */
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item:active {
+  background-color: var(--primary-color, #0d6efd);
+  color: white !important;
+}
+
+/* Fix export button styling */
+.dropdown-toggle.btn-outline-primary:hover,
+.dropdown-toggle.btn-outline-primary:active,
+.dropdown-toggle.btn-outline-primary:focus {
+  background-color: var(--primary-color, #0d6efd);
+  color: white !important;
+  border-color: var(--primary-color, #0d6efd);
+}
+
+/* Fix scrolling/pagination flickering issues */
+.table-responsive {
+  overflow-anchor: none; /* Prevents scroll position jumps */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Optimize table rendering during scroll */
+.table-responsive table {
+  backface-visibility: hidden;
+  transform: translateZ(0); /* Force GPU acceleration */
+  will-change: transform; /* Hint browser about properties that will change */
+}
+
+/* Stabilize table rows during scroll and pagination */
+.table-responsive tbody tr {
+  transition: opacity 150ms ease-out, transform 150ms ease-out !important;
+  will-change: opacity, transform;
+  transform: translateZ(0);
+}
+
+/* Ensure content doesn't cause layout shifts */
+.table-responsive td {
+  vertical-align: middle;
+  backface-visibility: hidden;
+}
+
+/* Ensure table header stays stable */
+.table-responsive thead th {
+  background-color: var(--bs-light);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle shadow to separate header */
+}
+
+/* Reduce motion option for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .table-responsive tbody tr {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Fix intersection observer triggering styles */
+.loading-indicator {
+  height: 40px;
+  margin: 10px 0;
+  will-change: opacity;
+  transition: opacity 150ms ease;
+}

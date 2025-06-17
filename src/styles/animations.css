@@ -1,0 +1,31 @@
+/* Smooth animations to prevent flicker */
+.page-transition {
+    position: relative;
+    min-height: calc(100vh - 140px); /* Adjust based on navbar/footer height */
+}
+
+/* Override default Framer Motion behaviors that might cause flicker */
+.framer-motion-fix * {
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Loading indicator styling */
+.app-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    background-color: #f8f9fa;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+}
+
+/* Prevent content shift during authentication */
+.auth-container {
+    min-height: 75vh;
+}
