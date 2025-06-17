@@ -17,7 +17,10 @@ class TimezoneService {
             console.log('Detected user timezone:', this.userTimezone);
 
             // If not in India timezone, default to India/Kolkata
-            if (!this.userTimezone.includes('India') && !this.userTimezone.includes('Kolkata') && !this.userTimezone.includes('Asia/Calcutta')) {
+            if (!this.userTimezone.includes('India') &&
+                !this.userTimezone.includes('Kolkata') &&
+                !this.userTimezone.includes('Asia/Calcutta') &&
+                !this.userTimezone.includes('Asia/Kolkata')) {
                 this.userTimezone = 'Asia/Kolkata'; // India Standard Time
                 console.log('Setting default to India timezone:', this.userTimezone);
             }
@@ -280,6 +283,40 @@ class TimezoneService {
         } catch (error) {
             console.error('Error validating timezone:', error);
             return false;
+        }
+    }
+
+    // Helper method to format date to YYYY-MM-DD
+    formatDateToYYYYMMDD(date) {
+        if (!date) return '';
+
+        try {
+            let dateObj;
+
+            if (date instanceof Date) {
+                dateObj = date;
+            } else if (typeof date === 'string') {
+                // If it's already in YYYY-MM-DD format, return as is
+                if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                    return date;
+                }
+                dateObj = new Date(date);
+            } else {
+                return '';
+            }
+
+            if (isNaN(dateObj.getTime())) {
+                return '';
+            }
+
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return '';
         }
     }
 }

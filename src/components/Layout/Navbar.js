@@ -129,8 +129,19 @@ const CustomNavbar = () => {
         const meetingName = scheduleForm.name;
 
         try {
+            // Ensure date is in YYYY-MM-DD format before sending to API
+            const apiData = {
+                ...scheduleForm,
+                availableDate: scheduleForm.date // The HTML date input already provides YYYY-MM-DD format
+            };
+
+            // Remove the 'date' field as we're using 'availableDate' for the API
+            delete apiData.date;
+
+            console.log('Submitting meeting type with data:', apiData);
+
             // Create meeting type via API
-            const response = await meetingService.createMeetingType(scheduleForm);
+            const response = await meetingService.createMeetingType(apiData);
 
             if (response.success) {
                 setShowScheduleModal(false);
@@ -469,11 +480,15 @@ const CustomNavbar = () => {
 
                             {/* Add Date Field */}
                             <Form.Group className="mb-3">
-                                <Form.Label>Meeting Date *</Form.Label>
+                                <Form.Label>Available Date *</Form.Label>
                                 <Form.Control
                                     type="date"
                                     value={scheduleForm.date}
-                                    onChange={(e) => setScheduleForm({ ...scheduleForm, date: e.target.value })}
+                                    onChange={(e) => {
+                                        const dateValue = e.target.value;
+                                        console.log('Date input value:', dateValue); // Debug log
+                                        setScheduleForm({ ...scheduleForm, date: dateValue });
+                                    }}
                                     className="form-control-modern"
                                     min={new Date().toISOString().split('T')[0]} // Prevent past dates
                                     required

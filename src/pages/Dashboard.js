@@ -435,17 +435,61 @@ const Dashboard = () => {
         }
     };
 
-    // Enhanced handleEditMeetingType with timezone
+    // Enhanced handleEditMeetingType with timezone and correct date formatting
     const handleEditMeetingType = (meetingType) => {
         setEditingMeetingType(meetingType);
+
+        // Fix date formatting to ensure YYYY-MM-DD format
+        let formattedDate = '';
+        if (meetingType.availableDate) {
+            const dateValue = meetingType.availableDate;
+
+            // If it's already in YYYY-MM-DD format, use it directly
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                formattedDate = dateValue;
+            } else {
+                // Try to parse and format the date
+                try {
+                    const dateObj = new Date(dateValue);
+                    if (!isNaN(dateObj.getTime())) {
+                        const year = dateObj.getFullYear();
+                        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        const day = String(dateObj.getDate()).padStart(2, '0');
+                        formattedDate = `${year}-${month}-${day}`;
+                    }
+                } catch (error) {
+                    console.error('Error parsing date:', error);
+                }
+            }
+        }
+
+        // Fallback to dateFormatted if available and in correct format
+        if (!formattedDate && meetingType.dateFormatted) {
+            if (/^\d{4}-\d{2}-\d{2}$/.test(meetingType.dateFormatted)) {
+                formattedDate = meetingType.dateFormatted;
+            } else {
+                // Try to parse dateFormatted
+                try {
+                    const dateObj = new Date(meetingType.dateFormatted);
+                    if (!isNaN(dateObj.getTime())) {
+                        const year = dateObj.getFullYear();
+                        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        const day = String(dateObj.getDate()).padStart(2, '0');
+                        formattedDate = `${year}-${month}-${day}`;
+                    }
+                } catch (error) {
+                    console.error('Error parsing dateFormatted:', error);
+                }
+            }
+        }
+
         setNewMeetingType({
             name: meetingType.name || '',
             duration: meetingType.duration || 30,
             description: meetingType.description || '',
             color: meetingType.color || '#006bff',
-            timezone: meetingType.timezone || timezoneService.getUserTimezone(), // Include timezone
-            availableDate: meetingType.dateFormatted ||
-                (meetingType.availableDate ? meetingType.availableDate.split('T')[0] : '')
+            timezone: meetingType.timezone || timezoneService.getUserTimezone(),
+            availableDate: formattedDate // Use the properly formatted date
         });
         setShowNewMeetingModal(true);
         setShowManageModal(false);
