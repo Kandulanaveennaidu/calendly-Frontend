@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
-import { Navbar, Nav, Container, Button, Dropdown, Badge, Modal, Form, NavDropdown } from 'react-bootstrap';
+import React, { useState, useContext, useEffect } from 'react';
+import { Navbar, Nav, Container, Button, Dropdown, Badge, Modal, Form } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { FiCalendar, FiUser, FiMenu, FiBell, FiSettings, FiLogOut } from 'react-icons/fi';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -18,9 +18,7 @@ const CustomNavbar = () => {
 
     // Notifications State with REST API
     const [notifications, setNotifications] = useState([]);
-    const [unreadCount, setUnreadCount] = useState(0);
     const [notificationLoading, setNotificationLoading] = useState(false);
-    const pollIntervalRef = useRef(null);
 
     const [scheduleForm, setScheduleForm] = useState({
         name: '',
@@ -43,14 +41,7 @@ const CustomNavbar = () => {
     useEffect(() => {
         if (currentUser) {
             loadNotifications();
-            startPolling();
         }
-
-        return () => {
-            if (pollIntervalRef.current) {
-                clearInterval(pollIntervalRef.current);
-            }
-        };
     }, [currentUser]);
 
     // Load notifications from API
@@ -61,7 +52,6 @@ const CustomNavbar = () => {
 
             if (response.success) {
                 setNotifications(response.data.notifications || []);
-                setUnreadCount(response.data.unreadCount || 0);
             }
         } catch (error) {
             console.error('Failed to load notifications:', error);
@@ -69,21 +59,6 @@ const CustomNavbar = () => {
         } finally {
             setNotificationLoading(false);
         }
-    };
-
-    // Poll for new notifications every 30 seconds
-    const startPolling = () => {
-        pollIntervalRef.current = setInterval(async () => {
-            try {
-                const response = await notificationService.getUnreadCount();
-                if (response.success && response.data.count !== unreadCount) {
-                    // Reload notifications if count changed
-                    loadNotifications();
-                }
-            } catch (error) {
-                console.error('Polling error:', error);
-            }
-        }, 30000); // Poll every 30 seconds
     };
 
     // Mark notification as read
@@ -98,7 +73,6 @@ const CustomNavbar = () => {
                         : notif
                 )
             );
-            setUnreadCount(prev => Math.max(0, prev - 1));
         } catch (error) {
             console.error('Failed to mark notification as read:', error);
         }
@@ -109,7 +83,6 @@ const CustomNavbar = () => {
         try {
             await notificationService.markAllAsRead();
             setNotifications(prev => prev.map(notif => ({ ...notif, isRead: true })));
-            setUnreadCount(0);
         } catch (error) {
             console.error('Failed to mark all notifications as read:', error);
         }
@@ -309,15 +282,6 @@ const CustomNavbar = () => {
                                                 className="text-dark text-decoration-none position-relative p-2"
                                             >
                                                 <FiBell size={20} />
-                                                {unreadCount > 0 && (
-                                                    <Badge
-                                                        bg="danger"
-                                                        className="position-absolute top-0 start-100 translate-middle badge-sm"
-                                                        style={{ fontSize: '0.6rem' }}
-                                                    >
-                                                        {unreadCount}
-                                                    </Badge>
-                                                )}
                                             </Dropdown.Toggle>
                                             <Dropdown.Menu align="end" style={{ width: '350px', maxHeight: '400px', overflowY: 'auto' }}>
                                                 <div className="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
@@ -336,16 +300,7 @@ const CustomNavbar = () => {
                                                                 'Refresh'
                                                             )}
                                                         </Button>
-                                                        {unreadCount > 0 && (
-                                                            <Button
-                                                                variant="link"
-                                                                size="sm"
-                                                                className="text-primary p-0"
-                                                                onClick={markAllAsRead}
-                                                            >
-                                                                Mark all read
-                                                            </Button>
-                                                        )}
+                                                        {/* Removed unreadCount check */}
                                                     </div>
                                                 </div>
 

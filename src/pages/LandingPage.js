@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Card, Badge, Form } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card, Badge, Form, Modal } from 'react-bootstrap';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import {
     FiCalendar, FiClock, FiUsers, FiZap, FiCheck, FiArrowRight,
@@ -13,6 +13,18 @@ const LandingPage = () => {
     const { scrollYProgress } = useScroll();
     const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [showContactModal, setShowContactModal] = useState(false);
+    const [contactForm, setContactForm] = useState({
+        name: '',
+        email: '',
+        company: '',
+        phone: '',
+        message: ''
+    });
+    const [contactStatus, setContactStatus] = useState({ loading: false, success: '', error: '' });
+    const [showDemoModal, setShowDemoModal] = useState(false);
+    const [demoForm, setDemoForm] = useState({ name: '', email: '', company: '', phone: '', message: '' });
+    const [demoStatus, setDemoStatus] = useState({ loading: false, success: '', error: '' });
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -63,31 +75,31 @@ const LandingPage = () => {
 
     const testimonials = [
         {
-            name: "Sarah Johnson",
-            role: "VP of Product",
-            company: "TechCorp",
-            image: "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+            name: "VitelGlobal Team",
+            role: "Enterprise Communications",
+            company: "VitelGlobal",
+            image: "https://imageio.forbes.com/specials-images/imageserve/65ccd50c4de75918d26599cc/0x0.jpg?format=jpg&crop=813,812,x108,y0,safe&width=300",
             rating: 5,
-            text: "ScheduleMe revolutionized our meeting culture. 300% increase in productivity and zero scheduling conflicts.",
-            metric: "300% productivity boost"
+            text: "VitelGlobal streamlined our global communications and scheduling. The integration was seamless and support is top-notch!",
+            metric: "Seamless global integration"
         },
         {
-            name: "David Chen",
-            role: "Sales Director",
-            company: "GrowthLab",
-            image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+            name: "Varun Kumar",
+            role: "Founder & CEO",
+            company: "Varun Digital",
+            image: "https://randomuser.me/api/portraits/men/45.jpg",
             rating: 5,
-            text: "Our sales team closed 40% more deals thanks to ScheduleMe's seamless client booking experience.",
-            metric: "40% more deals closed"
+            text: "Varun Digital's marketing team saves hours every week. The analytics and automation are a game changer!",
+            metric: "Hours saved weekly"
         },
         {
-            name: "Emily Rodriguez",
-            role: "Digital Consultant",
-            company: "Rodriguez Consulting",
-            image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+            name: "Shatru Naik",
+            role: "AI ML Products | Delivery | Strategy",
+            company: "Pranthsis",
+            image: "https://media.licdn.com/dms/image/v2/D5603AQGFfRgUGks88Q/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1707503275609?e=1755734400&v=beta&t=g6EgQiCZnz9YqsfzaX2e3ktG9ivyZ04gnSGboGWo-Fw",
             rating: 5,
-            text: "My clients love the professional booking experience. It's like having a personal assistant 24/7.",
-            metric: "24/7 availability"
+            text: "As CTO of Pranthsis, I trust ScheduleMe for all our client demos and internal syncs. Reliable, secure, and easy to use.",
+            metric: "Trusted by tech leaders"
         }
     ];
 
@@ -151,6 +163,73 @@ const LandingPage = () => {
         { number: "99.9%", label: "Uptime", icon: <FiShield /> },
         { number: "4.9/5", label: "User Rating", icon: <FiStar /> }
     ];
+
+    const handleContactSales = () => setShowContactModal(true);
+
+    const handleContactInputChange = (e) => {
+        const { name, value } = e.target;
+        setContactForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleContactSubmit = async (e) => {
+        e.preventDefault();
+        setContactStatus({ loading: true, success: '', error: '' });
+        try {
+            const res = await fetch('http://localhost:5000/api/v1/contact/sales', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...contactForm,
+                    source: 'Landing Page'
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setContactStatus({ loading: false, success: 'Thank you! Our sales team will contact you soon.', error: '' });
+                setContactForm({ name: '', email: '', company: '', phone: '', message: '' });
+            } else {
+                setContactStatus({ loading: false, success: '', error: data.message || 'Something went wrong.' });
+            }
+        } catch (err) {
+            setContactStatus({ loading: false, success: '', error: 'Network error. Please try again.' });
+        }
+    };
+
+    const handleDemoRequest = () => setShowDemoModal(true);
+
+    const handleDemoInputChange = (e) => {
+        const { name, value } = e.target;
+        setDemoForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleDemoSubmit = async (e) => {
+        e.preventDefault();
+        setDemoStatus({ loading: true, success: '', error: '' });
+        if (demoForm.name.trim().length < 2) {
+            setDemoStatus({ loading: false, success: '', error: 'Name must be at least 2 characters.' });
+            return;
+        }
+        if (!/^\S+@\S+\.\S+$/.test(demoForm.email)) {
+            setDemoStatus({ loading: false, success: '', error: 'Please enter a valid email.' });
+            return;
+        }
+        try {
+            const res = await fetch('http://localhost:5000/api/v1/contact/demo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(demoForm)
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setDemoStatus({ loading: false, success: 'Thank you! Our team will contact you soon.', error: '' });
+                setDemoForm({ name: '', email: '', company: '', phone: '', message: '' });
+            } else {
+                setDemoStatus({ loading: false, success: '', error: data.message || 'Something went wrong.' });
+            }
+        } catch (err) {
+            setDemoStatus({ loading: false, success: '', error: 'Network error. Please try again.' });
+        }
+    };
 
     return (
         <>
@@ -465,7 +544,7 @@ const LandingPage = () => {
                                                 <Button
                                                     className={`plan-button w-100 ${plan.popular ? 'popular-button' : ''}`}
                                                     size="lg"
-                                                    onClick={() => navigate('/signup')}
+                                                    onClick={plan.buttonText === 'Contact Sales' ? handleContactSales : () => navigate('/signup')}
                                                 >
                                                     {plan.buttonText}
                                                 </Button>
@@ -590,6 +669,7 @@ const LandingPage = () => {
                                             <Button
                                                 size="lg"
                                                 className="cta-button secondary-cta"
+                                                onClick={handleContactSales}
                                             >
                                                 <FiMail className="me-2" />
                                                 <span>Contact Sales</span>
@@ -647,33 +727,33 @@ const LandingPage = () => {
                         <Col md={6} lg={2} className="mb-4">
                             <h6 className="footer-title">Product</h6>
                             <ul className="footer-links">
-                                <li><a href="#">Features</a></li>
-                                <li><a href="#">Pricing</a></li>
-                                <li><a href="#">Integrations</a></li>
-                                <li><a href="#">API</a></li>
-                                <li><a href="#">Mobile Apps</a></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Features" aria-disabled="true">Features</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Pricing" aria-disabled="true">Pricing</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Integrations" aria-disabled="true">Integrations</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="API" aria-disabled="true">API</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Mobile Apps" aria-disabled="true">Mobile Apps</button></li>
                             </ul>
                         </Col>
 
                         <Col md={6} lg={2} className="mb-4">
                             <h6 className="footer-title">Company</h6>
                             <ul className="footer-links">
-                                <li><a href="#">About Us</a></li>
-                                <li><a href="#">Blog</a></li>
-                                <li><a href="#">Careers</a></li>
-                                <li><a href="#">Press</a></li>
-                                <li><a href="#">Contact</a></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="About Us" aria-disabled="true">About Us</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Blog" aria-disabled="true">Blog</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Careers" aria-disabled="true">Careers</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Press" aria-disabled="true">Press</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Contact" onClick={handleContactSales}>Contact</button></li>
                             </ul>
                         </Col>
 
                         <Col md={6} lg={2} className="mb-4">
                             <h6 className="footer-title">Support</h6>
                             <ul className="footer-links">
-                                <li><a href="#">Help Center</a></li>
-                                <li><a href="#">Documentation</a></li>
-                                <li><a href="#">Status Page</a></li>
-                                <li><a href="#">Community</a></li>
-                                <li><a href="#">Security</a></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Help Center" aria-disabled="true">Help Center</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Documentation" aria-disabled="true">Documentation</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Status Page" aria-disabled="true">Status Page</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Community" aria-disabled="true">Community</button></li>
+                                <li><button type="button" className="footer-link-btn" aria-label="Security" aria-disabled="true">Security</button></li>
                             </ul>
                         </Col>
 
@@ -705,14 +785,154 @@ const LandingPage = () => {
                         </Col>
                         <Col md={6} className="text-md-end">
                             <div className="legal-links">
-                                <a href="#">Privacy Policy</a>
-                                <a href="#">Terms of Service</a>
-                                <a href="#">Cookie Policy</a>
+                                <button type="button" className="footer-link-btn" aria-label="Privacy Policy" aria-disabled="true">Privacy Policy</button>
+                                <button type="button" className="footer-link-btn" aria-label="Terms of Service" aria-disabled="true">Terms of Service</button>
+                                <button type="button" className="footer-link-btn" aria-label="Cookie Policy" aria-disabled="true">Cookie Policy</button>
                             </div>
                         </Col>
                     </Row>
                 </Container>
             </footer>
+
+            {/* Contact Sales Modal */}
+            <Modal show={showContactModal} onHide={() => setShowContactModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Contact Sales</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleContactSubmit}>
+                        <Form.Group className="mb-3" controlId="contactName">
+                            <Form.Label>Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="name"
+                                value={contactForm.name}
+                                onChange={handleContactInputChange}
+                                placeholder="Enter your name"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="contactEmail">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                                type="email"
+                                name="email"
+                                value={contactForm.email}
+                                onChange={handleContactInputChange}
+                                placeholder="Enter your email"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="contactCompany">
+                            <Form.Label>Company</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="company"
+                                value={contactForm.company}
+                                onChange={handleContactInputChange}
+                                placeholder="Enter your company name"
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="contactPhone">
+                            <Form.Label>Phone</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="phone"
+                                value={contactForm.phone}
+                                onChange={handleContactInputChange}
+                                placeholder="Enter your phone number"
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="contactMessage">
+                            <Form.Label>Message</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={4}
+                                name="message"
+                                value={contactForm.message}
+                                onChange={handleContactInputChange}
+                                placeholder="How can we help you?"
+                                required
+                            />
+                        </Form.Group>
+                        {contactStatus.error && <div className="text-danger mb-2">{contactStatus.error}</div>}
+                        {contactStatus.success && <div className="text-success mb-2">{contactStatus.success}</div>}
+                        <Button variant="primary" type="submit" className="w-100" disabled={contactStatus.loading}>
+                            {contactStatus.loading ? 'Sending...' : 'Send Message'}
+                        </Button>
+                    </Form>
+                </Modal.Body>
+            </Modal>
+
+            {/* Request Demo Modal */}
+            <Modal show={showDemoModal} onHide={() => setShowDemoModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Request a Demo</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleDemoSubmit}>
+                        <Form.Group className="mb-3" controlId="demoName">
+                            <Form.Label>Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="name"
+                                value={demoForm.name}
+                                onChange={handleDemoInputChange}
+                                placeholder="Enter your name"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="demoEmail">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                                type="email"
+                                name="email"
+                                value={demoForm.email}
+                                onChange={handleDemoInputChange}
+                                placeholder="Enter your email"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="demoCompany">
+                            <Form.Label>Company</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="company"
+                                value={demoForm.company}
+                                onChange={handleDemoInputChange}
+                                placeholder="Enter your company name"
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="demoPhone">
+                            <Form.Label>Phone</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="phone"
+                                value={demoForm.phone}
+                                onChange={handleDemoInputChange}
+                                placeholder="Enter your phone number"
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="demoMessage">
+                            <Form.Label>Message</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={4}
+                                name="message"
+                                value={demoForm.message}
+                                onChange={handleDemoInputChange}
+                                placeholder="How can we help you?"
+                                required
+                            />
+                        </Form.Group>
+                        {demoStatus.error && <div className="text-danger mb-2">{demoStatus.error}</div>}
+                        {demoStatus.success && <div className="text-success mb-2">{demoStatus.success}</div>}
+                        <Button variant="primary" type="submit" className="w-100" disabled={demoStatus.loading}>
+                            {demoStatus.loading ? 'Sending...' : 'Request Demo'}
+                        </Button>
+                    </Form>
+                </Modal.Body>
+            </Modal>
 
             {/* Custom Styles */}
             <style jsx>{`

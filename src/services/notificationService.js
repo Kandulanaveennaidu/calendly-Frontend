@@ -172,35 +172,6 @@ class NotificationService {
             throw error;
         }
     }
-
-    // Get unread count
-    async getUnreadCount() {
-        const token = this.getAuthToken();
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/notifications/unread-count`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    return this.handleTokenRefresh(() => this.getUnreadCount());
-                }
-                throw new Error(data.message || 'Failed to get unread count');
-            }
-
-            return data;
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
-        }
-    }
 }
 
 export default new NotificationService();
