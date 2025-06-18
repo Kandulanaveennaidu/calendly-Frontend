@@ -60,6 +60,9 @@ const PublicScheduling = () => {
     // Add a new state to control showing booking details after modal closes
     const [showBookingDetails, setShowBookingDetails] = useState(false);
 
+    // State to store booking result (including Zoom info)
+    const [bookingResult, setBookingResult] = useState(null);
+
     // Load timezones on component mount
     useEffect(() => {
         loadTimezones();
@@ -351,10 +354,17 @@ const PublicScheduling = () => {
 
             if (response.success) {
                 setSuccess('Meeting booked successfully!');
+                setBookingResult(response.data); // Save booking/Zoom info
                 setShowConfirmModal(true);
-                setShowBookingDetails(true); // Also show booking details
+                setShowBookingDetails(true);
             } else {
-                setError(response.message || 'Failed to book meeting');
+                if (response.message && response.message.includes('Time slot no longer available')) {
+                    setError('Sorry, this time slot is no longer available. Please select a different slot.');
+                    // Optionally refresh slots
+                    if (typeof loadAvailableSlots === 'function') loadAvailableSlots();
+                } else {
+                    setError(response.message || 'Failed to book meeting');
+                }
             }
         } catch (error) {
             console.error('Failed to book meeting:', error);
@@ -1178,6 +1188,22 @@ const PublicScheduling = () => {
                                 </div>
                             </Card.Body>
                         </Card>
+
+                        {bookingResult?.zoomMeeting && (
+                            <div className="zoom-info mt-4">
+                                <h5 className="fw-bold text-primary mb-2">Zoom Meeting Details</h5>
+                                <p>
+                                    <strong>Join Link:</strong>{' '}
+                                    <a href={bookingResult.zoomMeeting.joinUrl} target="_blank" rel="noopener noreferrer">
+                                        {bookingResult.zoomMeeting.joinUrl}
+                                    </a>
+                                </p>
+                                <p>
+                                    <strong>Meeting ID:</strong> {bookingResult.zoomMeeting.meetingNumber}<br />
+                                    <strong>Password:</strong> {bookingResult.zoomMeeting.password}
+                                </p>
+                            </div>
+                        )}
 
                         <Button
                             variant="primary"
