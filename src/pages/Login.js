@@ -203,7 +203,7 @@ const Login = () => {
                         >
                             <div className="text-center mb-4">
                                 <h2 className="fw-bold mb-0">Welcome Back!</h2>
-                                <p className="text-muted">Sign in to your ScheduleMe account</p>
+                                <p className="text-muted">Sign in to your meetslot.ai account</p>
                             </div>
 
                             <Card className="card-modern shadow-sm">
@@ -291,7 +291,7 @@ const Login = () => {
                                                 </>
                                             )}
                                         </Button>
-{/* 
+                                        {/* 
                                         <div className="text-center mb-4">
                                             <p className="text-muted small mb-0">Or sign in with</p>
                                             <div className="d-flex justify-content-center gap-2 mt-3">

@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Navbar, Nav, Container, Button, Dropdown, Badge, Modal, Form } from 'react-bootstrap';
+import { Navbar, Nav, Container, Button, Dropdown, Modal, Form } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { FiCalendar, FiUser, FiMenu, FiBell, FiSettings, FiLogOut } from 'react-icons/fi';
+import { FiCalendar, FiUser, FiMenu, FiBell, FiLogOut } from 'react-icons/fi';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import meetingService from '../../services/meetingService';
@@ -230,9 +230,67 @@ const CustomNavbar = () => {
                     onToggle={setExpanded}
                 >
                     <Container>
-                        <Navbar.Brand onClick={handleBrandClick} className="fw-bold fs-3 text-primary" style={{ cursor: 'pointer' }}>
-                            <FiCalendar className="me-2" />
-                            ScheduleMe
+                        <Navbar.Brand onClick={handleBrandClick} className="d-flex align-items-center" style={{ cursor: 'pointer' }}>
+                            <motion.div
+                                className="d-flex align-items-center"
+                                whileHover={{ scale: 1.05 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <motion.div
+                                    className="bg-gradient-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style={{
+                                        width: '45px',
+                                        height: '45px',
+                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+                                    }}
+                                    animate={{
+                                        rotate: [0, 5, -5, 0],
+                                        scale: [1, 1.05, 1]
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                >
+                                    <FiCalendar className="text-white" size={20} />
+                                </motion.div>
+                                <div className="d-flex flex-column">
+                                    <motion.span
+                                        className="fw-bold text-primary mb-0"
+                                        style={{
+                                            fontSize: '24px',
+                                            lineHeight: '1.2',
+                                            fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                            WebkitBackgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                            backgroundClip: 'text'
+                                        }}
+                                    >
+                                        meetslot
+                                    </motion.span>
+                                    <motion.span
+                                        className="text-muted"
+                                        style={{
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            marginTop: '-2px',
+                                            letterSpacing: '0.5px'
+                                        }}
+                                        initial={{ opacity: 0.6 }}
+                                        animate={{ opacity: [0.6, 1, 0.6] }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                    >
+                                        .ai
+                                    </motion.span>
+                                </div>
+                            </motion.div>
                         </Navbar.Brand>
 
                         <Navbar.Toggle aria-controls="basic-navbar-nav">
@@ -663,6 +721,36 @@ const CustomNavbar = () => {
                     </Modal.Body>
                 </Modal>
             )}
+
+            {/* Custom Styles for Enhanced Logo */}
+            <style jsx>{`
+                .bg-gradient-primary {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                }
+                
+                @keyframes logoGlow {
+                    0%, 100% { 
+                        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                    }
+                    50% { 
+                        box-shadow: 0 4px 25px rgba(102, 126, 234, 0.5);
+                    }
+                }
+                
+                .navbar-brand:hover .bg-gradient-primary {
+                    animation: logoGlow 2s ease-in-out infinite;
+                }
+                
+                @media (max-width: 768px) {
+                    .navbar-brand span:first-of-type {
+                        font-size: 20px !important;
+                    }
+                    .navbar-brand .bg-gradient-primary {
+                        width: 35px !important;
+                        height: 35px !important;
+                    }
+                }
+            `}</style>
 
             {/* Add custom styles for active navigation */}
             <style jsx global>{`

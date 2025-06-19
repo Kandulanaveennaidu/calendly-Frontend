@@ -155,7 +155,7 @@ const Home = () => {
                                     Ready to get started?
                                 </h2>
                                 <p className="lead text-muted mb-4">
-                                    Join thousands of professionals who trust ScheduleMe for their meeting needs
+                                    Join thousands of professionals who trust meetslot.ai for their meeting needs
                                 </p>
                                 <Button
                                     size="lg"

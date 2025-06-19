@@ -189,7 +189,7 @@ const SignUp = () => {
                         >
                             <div className="text-center mb-4">
                                 <h2 className="fw-bold mb-0">Create Your Account</h2>
-                                <p className="text-muted">Join ScheduleMe and start managing your meetings</p>
+                                <p className="text-muted">Join meetslot.ai and start managing your meetings</p>
                             </div>
 
                             <Card className="card-modern shadow-sm">

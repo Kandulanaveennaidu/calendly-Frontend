@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Card, Badge, Form, Modal } from 'react-bootstrap';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import {
     FiCalendar, FiClock, FiUsers, FiZap, FiCheck, FiArrowRight,
     FiStar, FiShield, FiGlobe, FiSmartphone, FiMail, FiUser,
-    FiPlay, FiTrendingUp, FiAward, FiHeart
+    FiPlay, FiTrendingUp, FiAward, FiHeart, FiPhone, FiBriefcase,
+    FiMessageSquare, FiAlertCircle, FiCheckCircle, FiSend
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
@@ -73,35 +74,45 @@ const LandingPage = () => {
         }
     ];
 
-    const testimonials = [
-        {
-            name: "VitelGlobal Team",
-            role: "Enterprise Communications",
-            company: "VitelGlobal",
-            image: "https://imageio.forbes.com/specials-images/imageserve/65ccd50c4de75918d26599cc/0x0.jpg?format=jpg&crop=813,812,x108,y0,safe&width=300",
-            rating: 5,
-            text: "VitelGlobal streamlined our global communications and scheduling. The integration was seamless and support is top-notch!",
-            metric: "Seamless global integration"
-        },
-        {
-            name: "Varun Kumar",
-            role: "Founder & CEO",
-            company: "Varun Digital",
-            image: "https://randomuser.me/api/portraits/men/45.jpg",
-            rating: 5,
-            text: "Varun Digital's marketing team saves hours every week. The analytics and automation are a game changer!",
-            metric: "Hours saved weekly"
-        },
-        {
-            name: "Shatru Naik",
-            role: "AI ML Products | Delivery | Strategy",
-            company: "Pranthsis",
-            image: "https://media.licdn.com/dms/image/v2/D5603AQGFfRgUGks88Q/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1707503275609?e=1755734400&v=beta&t=g6EgQiCZnz9YqsfzaX2e3ktG9ivyZ04gnSGboGWo-Fw",
-            rating: 5,
-            text: "As CTO of Pranthsis, I trust ScheduleMe for all our client demos and internal syncs. Reliable, secure, and easy to use.",
-            metric: "Trusted by tech leaders"
-        }
-    ];
+ const testimonials = [
+    {
+        name: "Praveen Andapalli",
+        role: "CEO",
+        company: "Vitel Global & Varun Digital Media",
+        image: "https://imageio.forbes.com/specials-images/imageserve/65ccd50c4de75918d26599cc/0x0.jpg?format=jpg&crop=813,812,x108,y0,safe&width=300",
+        rating: 5,
+        text: "meetslot.ai revolutionized how we manage internal communications and scheduling. As a leader in both telecom and digital media, I value its precision and ease of use.",
+        metric: "Leadership-driven efficiency"
+    },
+    {
+        name: "Ambati Sridhar",
+        role: "Director",
+        company: "VitelGlobal Communications Pvt Ltd",
+        image: "https://bharatpayroll.s3.amazonaws.com/public/pss_bharatpayroll_db/employee_images/Sridhar_Sir_9jfm2u3y5q.PNG",
+        rating: 5,
+        text: "Our organization relies on meetslot.ai to coordinate high-level meetings. The smart automation and reliable calendar integrations have boosted our productivity.",
+        metric: "Improved scheduling efficiency"
+    },
+    {
+        name: "Shatru Naik",
+        role: "AI ML Products | Delivery | Strategy",
+        company: "Pranthsis",
+        image: "https://media.licdn.com/dms/image/v2/D5603AQGFfRgUGks88Q/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1707503275609?e=1755734400&v=beta&t=g6EgQiCZnz9YqsfzaX2e3ktG9ivyZ04gnSGboGWo-Fw",
+        rating: 5,
+        text: "As CTO of Pranthsis, I trust meetslot.ai for all our client demos and internal syncs. Reliable, secure, and easy to use.",
+        metric: "Trusted by tech leaders"
+    },
+    {
+        name: "Mukesh Yadav",
+        role: "Managing Director",
+        company: "VitelGlobal Communications",
+        image: "https://media.licdn.com/dms/image/v2/D4E03AQGIw2cZ8K9tFw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1704472166673?e=1755734400&v=beta&t=AGsoeQNYgSGFcTioppkbn0i7LrEQ6MwK9chZjaOXd9U", // use appropriate image URL
+        rating: 5,
+        text: "As Managing Director, I count on meetslot.ai for seamless communication across departments. It brings structure, speed, and simplicity to our day-to-day operations.",
+        metric: "Seamless team collaboration"
+    }
+];
+
 
     const pricingPlans = [
         {
@@ -113,11 +124,13 @@ const LandingPage = () => {
                 "Unlimited bookings",
                 "Basic calendar sync",
                 "Email notifications",
-                "Mobile app access"
+                "Mobile app access",
+                "15-day premium trial"
             ],
-            buttonText: "Start Free",
+            buttonText: "Start 15-Day Trial",
             popular: false,
-            gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            trialPeriod: "15 days"
         },
         {
             name: "Professional",
@@ -131,11 +144,13 @@ const LandingPage = () => {
                 "Analytics dashboard",
                 "Priority support",
                 "API access",
-                "Team collaboration"
+                "Team collaboration",
+                "90-day money-back guarantee"
             ],
-            buttonText: "Start 14-Day Trial",
+            buttonText: "Start 90-Day Trial",
             popular: true,
-            gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+            gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+            trialPeriod: "90 days"
         },
         {
             name: "Enterprise",
@@ -149,11 +164,13 @@ const LandingPage = () => {
                 "Dedicated success manager",
                 "24/7 phone support",
                 "Advanced security",
-                "Custom integrations"
+                "Custom integrations",
+                "Extended 90-day trial"
             ],
             buttonText: "Contact Sales",
             popular: false,
-            gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+            gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+            trialPeriod: "90 days"
         }
     ];
 
@@ -264,7 +281,7 @@ const LandingPage = () => {
                                     >
                                         <FiCalendar size={48} />
                                     </motion.div>
-                                    <h1 className="brand-name">ScheduleMe</h1>
+                                    <h1 className="brand-name">meetslot.ai</h1>
                                 </div> */}
 
                                 <h2 className="hero-title mb-4">
@@ -310,7 +327,7 @@ const LandingPage = () => {
                                 <div className="hero-badges">
                                     <Badge className="hero-badge me-3">
                                         <FiCheck className="me-2" />
-                                        14-day free trial
+                                        15-day free trial
                                     </Badge>
                                     <Badge className="hero-badge me-3">
                                         <FiShield className="me-2" />
@@ -338,7 +355,7 @@ const LandingPage = () => {
                                             <div className="control-dot yellow"></div>
                                             <div className="control-dot green"></div>
                                         </div>
-                                        <div className="dashboard-title">ScheduleMe Dashboard</div>
+                                        <div className="dashboard-title">meetslot.ai Dashboard</div>
                                     </div>
 
                                     <div className="dashboard-content">
@@ -513,27 +530,83 @@ const LandingPage = () => {
                                             </div>
                                         )}
 
+                                        {/* Enhanced Trial Badge */}
+                                        {plan.trialPeriod && (
+                                            <motion.div
+                                                className="trial-badge"
+                                                initial={{ scale: 0 }}
+                                                animate={{ scale: 1 }}
+                                                transition={{ delay: 0.5 + index * 0.1, type: "spring" }}
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '15px',
+                                                    right: '15px',
+                                                    background: 'linear-gradient(135deg, #ff6b6b, #feca57)',
+                                                    color: 'white',
+                                                    padding: '5px 12px',
+                                                    borderRadius: '20px',
+                                                    fontSize: '12px',
+                                                    fontWeight: 'bold',
+                                                    boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)',
+                                                    zIndex: 10
+                                                }}
+                                            >
+                                                {plan.trialPeriod} trial
+                                            </motion.div>
+                                        )}
+
                                         <Card.Body className="p-4 text-center">
-                                            <div
+                                            <motion.div
                                                 className="plan-icon mb-4"
                                                 style={{ background: plan.gradient }}
+                                                animate={{
+                                                    rotate: [0, 5, -5, 0],
+                                                    scale: [1, 1.05, 1]
+                                                }}
+                                                transition={{
+                                                    duration: 4,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
                                             >
                                                 <FiCalendar size={32} />
-                                            </div>
+                                            </motion.div>
 
                                             <h4 className="plan-name mb-3">{plan.name}</h4>
 
                                             <div className="plan-price mb-4">
                                                 <span className="price-amount">{plan.price}</span>
                                                 <span className="price-period">/{plan.period}</span>
+                                                {plan.trialPeriod && (
+                                                    <motion.div
+                                                        className="trial-info mt-2"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        transition={{ delay: 0.8 + index * 0.1 }}
+                                                        style={{
+                                                            fontSize: '14px',
+                                                            color: '#28a745',
+                                                            fontWeight: '600'
+                                                        }}
+                                                    >
+                                                        <FiZap className="me-1" size={14} />
+                                                        {plan.trialPeriod} free trial
+                                                    </motion.div>
+                                                )}
                                             </div>
 
                                             <ul className="plan-features mb-4">
                                                 {plan.features.map((feature, featureIndex) => (
-                                                    <li key={featureIndex}>
+                                                    <motion.li
+                                                        key={featureIndex}
+                                                        initial={{ opacity: 0, x: -20 }}
+                                                        whileInView={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: 0.1 * featureIndex }}
+                                                        viewport={{ once: true }}
+                                                    >
                                                         <FiCheck className="feature-check" />
                                                         {feature}
-                                                    </li>
+                                                    </motion.li>
                                                 ))}
                                             </ul>
 
@@ -545,10 +618,41 @@ const LandingPage = () => {
                                                     className={`plan-button w-100 ${plan.popular ? 'popular-button' : ''}`}
                                                     size="lg"
                                                     onClick={plan.buttonText === 'Contact Sales' ? handleContactSales : () => navigate('/signup')}
+                                                    style={{
+                                                        background: plan.popular
+                                                            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                                                            : undefined,
+                                                        border: 'none',
+                                                        fontWeight: '600',
+                                                        padding: '12px 0'
+                                                    }}
                                                 >
                                                     {plan.buttonText}
+                                                    <FiArrowRight className="ms-2" size={16} />
                                                 </Button>
                                             </motion.div>
+
+                                            {/* Enhanced Trial Benefits */}
+                                            {plan.trialPeriod && (
+                                                <motion.div
+                                                    className="trial-benefits mt-3"
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    whileInView={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 1 + index * 0.1 }}
+                                                    viewport={{ once: true }}
+                                                    style={{
+                                                        fontSize: '12px',
+                                                        color: '#6c757d',
+                                                        padding: '10px',
+                                                        backgroundColor: '#f8f9fa',
+                                                        borderRadius: '8px',
+                                                        border: '1px dashed #dee2e6'
+                                                    }}
+                                                >
+                                                    <FiShield className="me-1 text-success" size={12} />
+                                                    No credit card required • Cancel anytime
+                                                </motion.div>
+                                            )}
                                         </Card.Body>
                                     </Card>
                                 </motion.div>
@@ -641,7 +745,7 @@ const LandingPage = () => {
                                         Ready to Transform Your Scheduling?
                                     </h2>
                                     <p className="cta-subtitle mb-5">
-                                        Join over 50,000 professionals who trust ScheduleMe to manage their time effectively.
+                                        Join over 50,000 professionals who trust meetslot.ai to manage their time effectively.
                                         Start your free trial today and see the difference.
                                     </p>
 
@@ -680,7 +784,7 @@ const LandingPage = () => {
                                     <div className="cta-features mt-5">
                                         <div className="cta-feature">
                                             <FiCheck className="me-2" />
-                                            <span>14-day free trial</span>
+                                            <span>15-day free trial</span>
                                         </div>
                                         <div className="cta-feature">
                                             <FiShield className="me-2" />
@@ -705,11 +809,11 @@ const LandingPage = () => {
                         <Col md={6} lg={4} className="mb-4">
                             <div className="footer-brand mb-4">
                                 <FiCalendar size={32} className="me-3" />
-                                <h5 className="brand-name mb-0">ScheduleMe</h5>
+                                <h5 className="brand-name mb-0">meetslot.ai</h5>
                             </div>
                             <p className="footer-description mb-4">
-                                The most intuitive scheduling platform that helps professionals and teams
-                                manage their time effectively with AI-powered automation.
+                                The most intuitive AI-powered scheduling platform that helps professionals and teams
+                                manage their time effectively with intelligent automation.
                             </p>
                             <div className="social-links">
                                 <Button className="social-link">
@@ -780,7 +884,7 @@ const LandingPage = () => {
                     <Row className="align-items-center">
                         <Col md={6}>
                             <p className="copyright">
-                                © 2024 ScheduleMe. All rights reserved.
+                                © 2024 meetslot.ai. All rights reserved.
                             </p>
                         </Col>
                         <Col md={6} className="text-md-end">
@@ -794,75 +898,290 @@ const LandingPage = () => {
                 </Container>
             </footer>
 
-            {/* Contact Sales Modal */}
-            <Modal show={showContactModal} onHide={() => setShowContactModal(false)} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Contact Sales</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={handleContactSubmit}>
-                        <Form.Group className="mb-3" controlId="contactName">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="name"
-                                value={contactForm.name}
-                                onChange={handleContactInputChange}
-                                placeholder="Enter your name"
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="contactEmail">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                type="email"
-                                name="email"
-                                value={contactForm.email}
-                                onChange={handleContactInputChange}
-                                placeholder="Enter your email"
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="contactCompany">
-                            <Form.Label>Company</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="company"
-                                value={contactForm.company}
-                                onChange={handleContactInputChange}
-                                placeholder="Enter your company name"
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="contactPhone">
-                            <Form.Label>Phone</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="phone"
-                                value={contactForm.phone}
-                                onChange={handleContactInputChange}
-                                placeholder="Enter your phone number"
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="contactMessage">
-                            <Form.Label>Message</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={4}
-                                name="message"
-                                value={contactForm.message}
-                                onChange={handleContactInputChange}
-                                placeholder="How can we help you?"
-                                required
-                            />
-                        </Form.Group>
-                        {contactStatus.error && <div className="text-danger mb-2">{contactStatus.error}</div>}
-                        {contactStatus.success && <div className="text-success mb-2">{contactStatus.success}</div>}
-                        <Button variant="primary" type="submit" className="w-100" disabled={contactStatus.loading}>
-                            {contactStatus.loading ? 'Sending...' : 'Send Message'}
-                        </Button>
-                    </Form>
-                </Modal.Body>
-            </Modal>
+            {/* Enhanced Contact Sales Modal */}
+            <AnimatePresence>
+                {showContactModal && (
+                    <Modal
+                        show={showContactModal}
+                        onHide={() => setShowContactModal(false)}
+                        centered
+                        size="lg"
+                        backdrop="static"
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                        >
+                            <Modal.Header
+                                closeButton
+                                className="border-0 pb-0"
+                                style={{
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    color: 'white'
+                                }}
+                            >
+                                <Modal.Title className="d-flex align-items-center w-100">
+                                    <motion.div
+                                        className="bg-white bg-opacity-20 rounded-circle p-2 me-3"
+                                        animate={{ rotate: [0, 10, -10, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                    >
+                                        <FiPhone className="text-white" size={24} />
+                                    </motion.div>
+                                    <div>
+                                        <h4 className="mb-0">Contact Our Sales Team</h4>
+                                        <small className="opacity-90">Get a personalized solution for your business</small>
+                                    </div>
+                                </Modal.Title>
+                            </Modal.Header>
+
+                            <Modal.Body className="p-4" style={{ background: '#f8f9fa' }}>
+                                {/* Benefits Section */}
+                                <motion.div
+                                    className="row mb-4"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                >
+                                    <div className="col-md-4 text-center mb-3">
+                                        <motion.div
+                                            className="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
+                                            style={{ width: '60px', height: '60px' }}
+                                            whileHover={{ scale: 1.1, rotate: 360 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <FiZap className="text-primary" size={24} />
+                                        </motion.div>
+                                        <small className="fw-semibold text-muted">Quick Setup</small>
+                                    </div>
+                                    <div className="col-md-4 text-center mb-3">
+                                        <motion.div
+                                            className="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
+                                            style={{ width: '60px', height: '60px' }}
+                                            whileHover={{ scale: 1.1, rotate: 360 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <FiShield className="text-success" size={24} />
+                                        </motion.div>
+                                        <small className="fw-semibold text-muted">Enterprise Security</small>
+                                    </div>
+                                    <div className="col-md-4 text-center mb-3">
+                                        <motion.div
+                                            className="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
+                                            style={{ width: '60px', height: '60px' }}
+                                            whileHover={{ scale: 1.1, rotate: 360 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <FiUsers className="text-warning" size={24} />
+                                        </motion.div>
+                                        <small className="fw-semibold text-muted">24/7 Support</small>
+                                    </div>
+                                </motion.div>
+
+                                <motion.div
+                                    className="bg-white rounded-4 p-4 shadow-sm"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                >
+                                    <Form onSubmit={handleContactSubmit}>
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <Form.Group className="mb-3" controlId="contactName">
+                                                    <Form.Label className="fw-semibold text-dark">
+                                                        <FiUser className="me-2 text-primary" size={16} />
+                                                        Full Name
+                                                    </Form.Label>
+                                                    <motion.div
+                                                        whileFocus={{ scale: 1.02 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <Form.Control
+                                                            type="text"
+                                                            name="name"
+                                                            value={contactForm.name}
+                                                            onChange={handleContactInputChange}
+                                                            placeholder="Enter your full name"
+                                                            className="border-0 shadow-sm rounded-3 py-3"
+                                                            style={{ backgroundColor: '#f8f9fa' }}
+                                                            required
+                                                        />
+                                                    </motion.div>
+                                                </Form.Group>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <Form.Group className="mb-3" controlId="contactEmail">
+                                                    <Form.Label className="fw-semibold text-dark">
+                                                        <FiMail className="me-2 text-primary" size={16} />
+                                                        Business Email
+                                                    </Form.Label>
+                                                    <motion.div
+                                                        whileFocus={{ scale: 1.02 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <Form.Control
+                                                            type="email"
+                                                            name="email"
+                                                            value={contactForm.email}
+                                                            onChange={handleContactInputChange}
+                                                            placeholder="Enter your business email"
+                                                            className="border-0 shadow-sm rounded-3 py-3"
+                                                            style={{ backgroundColor: '#f8f9fa' }}
+                                                            required
+                                                        />
+                                                    </motion.div>
+                                                </Form.Group>
+                                            </div>
+                                        </div>
+
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <Form.Group className="mb-3" controlId="contactCompany">
+                                                    <Form.Label className="fw-semibold text-dark">
+                                                        <FiBriefcase className="me-2 text-primary" size={16} />
+                                                        Company Name
+                                                    </Form.Label>
+                                                    <motion.div
+                                                        whileFocus={{ scale: 1.02 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <Form.Control
+                                                            type="text"
+                                                            name="company"
+                                                            value={contactForm.company}
+                                                            onChange={handleContactInputChange}
+                                                            placeholder="Enter your company name"
+                                                            className="border-0 shadow-sm rounded-3 py-3"
+                                                            style={{ backgroundColor: '#f8f9fa' }}
+                                                        />
+                                                    </motion.div>
+                                                </Form.Group>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <Form.Group className="mb-3" controlId="contactPhone">
+                                                    <Form.Label className="fw-semibold text-dark">
+                                                        <FiPhone className="me-2 text-primary" size={16} />
+                                                        Phone Number
+                                                    </Form.Label>
+                                                    <motion.div
+                                                        whileFocus={{ scale: 1.02 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <Form.Control
+                                                            type="text"
+                                                            name="phone"
+                                                            value={contactForm.phone}
+                                                            onChange={handleContactInputChange}
+                                                            placeholder="Enter your phone number"
+                                                            className="border-0 shadow-sm rounded-3 py-3"
+                                                            style={{ backgroundColor: '#f8f9fa' }}
+                                                        />
+                                                    </motion.div>
+                                                </Form.Group>
+                                            </div>
+                                        </div>
+
+                                        <Form.Group className="mb-4" controlId="contactMessage">
+                                            <Form.Label className="fw-semibold text-dark">
+                                                <FiMessageSquare className="me-2 text-primary" size={16} />
+                                                Tell us about your needs
+                                            </Form.Label>
+                                            <motion.div
+                                                whileFocus={{ scale: 1.02 }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={4}
+                                                    name="message"
+                                                    value={contactForm.message}
+                                                    onChange={handleContactInputChange}
+                                                    placeholder="Describe your requirements, team size, and how we can help..."
+                                                    className="border-0 shadow-sm rounded-3"
+                                                    style={{ backgroundColor: '#f8f9fa' }}
+                                                    required
+                                                />
+                                            </motion.div>
+                                        </Form.Group>
+
+                                        <AnimatePresence>
+                                            {contactStatus.error && (
+                                                <motion.div
+                                                    className="alert alert-danger rounded-3 border-0"
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -10 }}
+                                                >
+                                                    <FiAlertCircle className="me-2" />
+                                                    {contactStatus.error}
+                                                </motion.div>
+                                            )}
+                                            {contactStatus.success && (
+                                                <motion.div
+                                                    className="alert alert-success rounded-3 border-0"
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -10 }}
+                                                >
+                                                    <FiCheckCircle className="me-2" />
+                                                    {contactStatus.success}
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+
+                                        <motion.div
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <Button
+                                                variant="primary"
+                                                type="submit"
+                                                className="w-100 py-3 rounded-3 fw-semibold"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                    border: 'none',
+                                                    fontSize: '16px'
+                                                }}
+                                                disabled={contactStatus.loading}
+                                            >
+                                                {contactStatus.loading ? (
+                                                    <>
+                                                        <motion.div
+                                                            className="spinner-border spinner-border-sm me-2"
+                                                            animate={{ rotate: 360 }}
+                                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                        />
+                                                        Sending Message...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FiSend className="me-2" />
+                                                        Send Message & Get Quote
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </motion.div>
+                                    </Form>
+
+                                    <motion.div
+                                        className="text-center mt-3"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        <small className="text-muted">
+                                            <FiShield className="me-1" size={12} />
+                                            Your information is secure and will never be shared
+                                        </small>
+                                    </motion.div>
+                                </motion.div>
+                            </Modal.Body>
+                        </motion.div>
+                    </Modal>
+                )}
+            </AnimatePresence>
 
             {/* Request Demo Modal */}
             <Modal show={showDemoModal} onHide={() => setShowDemoModal(false)} centered>

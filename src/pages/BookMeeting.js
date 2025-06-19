@@ -72,7 +72,7 @@ Meeting Link: ${newBooking.meetingLink}
 We look forward to meeting with you!
 
 Best regards,
-ScheduleMe Team
+meetslot.ai Team
         `);
 
         // Redirect to meetings page after 3 seconds

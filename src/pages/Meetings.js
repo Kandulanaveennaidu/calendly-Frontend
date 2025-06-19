@@ -809,7 +809,7 @@ Duration: ${meeting.duration} minutes
 ${meeting.meetingLink ? `Join Link: ${meeting.meetingLink}` : ''}
 
 Best regards,
-ScheduleMe Team
+meetslot.ai Team
         `);
 
         if (attendeeEmails) {
@@ -2610,7 +2610,7 @@ ScheduleMe Team
                         <Col md={6}>
                             <div className="d-flex align-items-center">
                                 <FiCalendar className="me-2 text-primary" size={20} />
-                                <span className="fw-bold text-primary">ScheduleMe</span>
+                                <span className="fw-bold text-primary">meetslot.ai</span>
                                 <span className="text-muted ms-2">© 2025</span>
                             </div>
                         </Col>
