@@ -5,6 +5,7 @@ import { FiCalendar, FiPlus, FiUsers, FiClock, FiSettings, FiEdit, FiTrash2, FiC
 import { useNavigate } from 'react-router-dom';
 import dashboardService from '../services/dashboardService';
 import meetingTypeService from '../services/meetingTypeService';
+import meetingService from '../services/meetingService';
 import timezoneService from '../services/timezoneService';
 
 // Loader component for infinite scrolling
@@ -77,13 +78,6 @@ const Dashboard = () => {
     const [selectedMeetingBookings, setSelectedMeetingBookings] = useState([]);
     const [selectedMeetingName, setSelectedMeetingName] = useState('');
 
-    // Load initial data on component mount
-    useEffect(() => {
-        loadDashboardStats();
-        loadMeetingTypes();
-        loadTimezones(); // Add timezone loading
-    }, []);
-
     // Load Dashboard Statistics
     const loadDashboardStats = async () => {
         try {
@@ -115,6 +109,9 @@ const Dashboard = () => {
                             break;
                         case 'Total Bookings':
                             stats.totalBookings = parseInt(stat.value) || 0;
+                            break;
+                        default:
+                            // Unknown stat type, ignore
                             break;
                     }
                 });
@@ -209,7 +206,7 @@ const Dashboard = () => {
     }, [meetingTypesLoading, meetingTypesHasMore, meetingTypesPage]);
 
     // Load timezones from API only
-    const loadTimezones = async () => {
+    const loadTimezones = useCallback(async () => {
         try {
             setTimeZonesLoading(true);
             console.log('Loading timezones from API...');
@@ -268,7 +265,14 @@ const Dashboard = () => {
         } finally {
             setTimeZonesLoading(false);
         }
-    };
+    }, [newMeetingType.timezone]);
+
+    // Load initial data on component mount
+    useEffect(() => {
+        loadDashboardStats();
+        loadMeetingTypes();
+        loadTimezones(); // Add timezone loading
+    }, [loadTimezones]);
 
     // Handle Create Meeting Type
     const handleCreateMeetingType = async (e) => {
@@ -585,23 +589,6 @@ const Dashboard = () => {
         { title: "Total Bookings", value: dashboardStats.totalBookings.toString(), icon: FiUsers, color: "warning" }
     ];
 
-    // Add a manual refresh function
-    const handleRefreshDashboard = async () => {
-        setError('');
-        setSuccess('');
-
-        try {
-            await Promise.all([
-                loadDashboardStats(),
-                loadMeetingTypes(1, false)
-            ]);
-            setSuccess('Dashboard refreshed successfully!');
-        } catch (error) {
-            console.error('Failed to refresh dashboard:', error);
-            setError('Failed to refresh dashboard');
-        }
-    };
-
     // Helper function for authenticated API calls
     const makeAuthenticatedRequest = async (url, options = {}) => {
         const authToken = localStorage.getItem('authToken');
@@ -631,109 +618,6 @@ const Dashboard = () => {
         return response;
     };
 
-    // Updated loadRecentBookings to handle your actual API response
-    const loadRecentBookings = useCallback(async () => {
-        try {
-            setBookingsLoading(true);
-            const allBookings = [];
-
-            for (const meetingType of meetingTypes) {
-                try {
-                    const response = await makeAuthenticatedRequest(
-                        `http://localhost:5000/api/v1/meetings/public/${meetingType._id || meetingType.id}/bookings`
-                    );
-                    const data = await response.json();
-
-                    console.log('Bookings API Response:', data);
-
-                    // Handle your actual API response structure
-                    if (data.success && data.data && Array.isArray(data.data)) {
-                        const processedBookings = data.data.map(booking => {
-                            // Use the time field from backend API (in HH:MM format) and convert to 12-hour format
-                            let formattedTime;
-                            if (booking.time) {
-                                // Backend returns time in "HH:MM" format (24-hour) - convert to 12-hour format
-                                const [hours, minutes] = booking.time.split(':');
-                                const hour24 = parseInt(hours, 10);
-                                const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-                                const ampm = hour24 >= 12 ? 'PM' : 'AM';
-                                formattedTime = `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
-                            } else {
-                                // Fallback to createdAt time if time field is not available
-                                const bookingDate = new Date(booking.createdAt);
-                                formattedTime = bookingDate.toLocaleTimeString('en-US', {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true
-                                });
-                            }
-
-                            // Format the date properly
-                            const bookingDate = new Date(booking.createdAt);
-                            const formattedDate = booking.date ?
-                                new Date(booking.date).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric'
-                                }) :
-                                bookingDate.toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric'
-                                });
-
-                            return {
-                                // Map your API fields to frontend expected fields
-                                _id: booking.id,
-                                date: formattedDate,
-                                time: formattedTime,
-                                status: booking.status,
-                                createdAt: booking.createdAt,
-                                scheduledAt: booking.createdAt,
-                                // Extract guest info from title (if available) or set defaults
-                                guestInfo: {
-                                    name: booking.title ? booking.title.replace(' with ', ' - ') : 'Guest',
-                                    // email: booking.email || 'No email provided',
-                                    phone: booking.phone || '',
-                                    message: booking.message || ''
-                                },
-                                // Add meeting type info
-                                meetingTypeName: meetingType.name,
-                                meetingTypeColor: meetingType.color,
-                                meetingTypeId: meetingType._id || meetingType.id
-                            };
-                        });
-                        allBookings.push(...processedBookings);
-                    }
-                } catch (error) {
-                    console.error(`Failed to load bookings for ${meetingType.name}:`, error);
-                    if (error.message.includes('Session expired')) {
-                        setError(error.message);
-                        navigate('/login');
-                        return;
-                    }
-                }
-            }
-
-            console.log('Processed bookings:', allBookings);
-
-            // Sort by creation date (newest first) and take last 5
-            const sortedBookings = allBookings
-                .sort((a, b) => new Date(b.createdAt || b.scheduledAt) - new Date(a.createdAt || a.scheduledAt))
-                .slice(0, 5);
-
-            setRecentBookings(sortedBookings);
-        } catch (error) {
-            console.error('Failed to load recent bookings:', error);
-            if (error.message.includes('Session expired')) {
-                setError(error.message);
-                navigate('/login');
-            }
-        } finally {
-            setBookingsLoading(false);
-        }
-    }, [meetingTypes, navigate]); // Added dependencies for useCallback
-
     // Updated loadMeetingBookings to handle your actual API response
     const loadMeetingBookings = async (meetingTypeId, meetingTypeName) => {
         try {
@@ -744,9 +628,10 @@ const Dashboard = () => {
 
             console.log('Single meeting bookings response:', data);
 
-            if (data.success && data.data && Array.isArray(data.data)) {
+            // Fix the data structure - should be data.data.bookings based on your API response
+            if (data.success && data.data && data.data.bookings && Array.isArray(data.data.bookings)) {
                 // Map your API response to expected format
-                const mappedBookings = data.data.map(booking => {
+                const mappedBookings = data.data.bookings.map(booking => {
                     // Use the time field from backend API (in HH:MM format) and convert to 12-hour format
                     let formattedTime;
                     if (booking.time) {
@@ -767,40 +652,51 @@ const Dashboard = () => {
                     }
 
                     // Format the date properly
-                    const bookingDate = new Date(booking.createdAt);
                     const formattedDate = booking.date ?
                         new Date(booking.date).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric'
                         }) :
-                        bookingDate.toLocaleDateString('en-US', {
+                        new Date(booking.createdAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric'
                         });
 
                     return {
-                        _id: booking.id,
+                        _id: booking._id || booking.id,
                         date: formattedDate,
                         time: formattedTime,
                         status: booking.status,
                         createdAt: booking.createdAt,
-                        scheduledAt: booking.createdAt,
+                        scheduledAt: booking.scheduledAt || booking.createdAt,
+                        title: booking.title || `${meetingTypeName} with ${booking.guestInfo?.name || 'Guest'}`,
+                        duration: booking.duration || 30,
+                        timezone: booking.timezone || 'UTC',
                         guestInfo: {
-                            name: booking.title ? booking.title.replace(' with ', ' - ') : 'Guest',
-                            // email: booking.email || 'No email provided',
-                            phone: booking.phone || '',
-                            message: booking.message || ''
-                        }
+                            name: booking.guestInfo?.name || (booking.title ? booking.title.replace(' with ', '') : 'Guest'),
+                            email: booking.guestInfo?.email || '',
+                            phone: booking.guestInfo?.phone || '',
+                            message: booking.guestInfo?.message || ''
+                        },
+                        // Google Meet information  
+                        googleMeetJoinUrl: booking.googleMeetJoinUrl || null,
+                        googleMeetHtmlLink: booking.googleMeetHtmlLink || null,
+                        googleMeetId: booking.googleMeetId || null
                     };
                 });
 
+                console.log('Mapped bookings:', mappedBookings);
                 setSelectedMeetingBookings(mappedBookings);
                 setSelectedMeetingName(meetingTypeName);
                 setShowBookingsModal(true);
             } else {
-                setError(data.message || 'Failed to load meeting bookings');
+                console.warn('No bookings found or invalid response structure:', data);
+                setSelectedMeetingBookings([]);
+                setSelectedMeetingName(meetingTypeName);
+                setShowBookingsModal(true);
+                setError(data.message || 'No bookings found for this meeting type');
             }
         } catch (error) {
             console.error('Failed to load meeting bookings:', error);
@@ -812,6 +708,90 @@ const Dashboard = () => {
             }
         }
     };
+
+    // Load recent bookings for dashboard
+    const loadRecentBookings = useCallback(async () => {
+        try {
+            setBookingsLoading(true);
+            console.log('Loading recent bookings from meeting types:', meetingTypes);
+
+            // Use the fallback method to get bookings from meeting types
+            const response = await meetingService.getRecentBookingsFromMeetingTypes(meetingTypes, 10);
+
+            console.log('Recent bookings response:', response);
+
+            if (response.success && response.data && response.data.bookings) {
+                // Map the bookings to the expected format
+                const mappedBookings = response.data.bookings.map(booking => {
+                    // Format time from HH:MM to 12-hour format
+                    let formattedTime;
+                    if (booking.time) {
+                        const [hours, minutes] = booking.time.split(':');
+                        const hour24 = parseInt(hours, 10);
+                        const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                        const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                        formattedTime = `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+                    } else {
+                        // Fallback to createdAt time if time field is not available
+                        const bookingDate = new Date(booking.createdAt);
+                        formattedTime = bookingDate.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                    }
+
+                    // Format the date
+                    const formattedDate = booking.date ?
+                        new Date(booking.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        }) :
+                        new Date(booking.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+
+                    return {
+                        ...booking,
+                        date: formattedDate,
+                        time: formattedTime,
+                        title: booking.title || `${booking.meetingTypeName || 'Meeting'} with ${booking.guestInfo?.name || 'Guest'}`,
+                        guestInfo: {
+                            name: booking.guestInfo?.name || 'Guest',
+                            email: booking.guestInfo?.email || '',
+                            phone: booking.guestInfo?.phone || '',
+                            message: booking.guestInfo?.message || ''
+                        },
+                        googleMeetJoinUrl: booking.googleMeetJoinUrl || null,
+                        googleMeetHtmlLink: booking.googleMeetHtmlLink || null,
+                        googleMeetId: booking.googleMeetId || null,
+                        duration: booking.duration || 30,
+                        timezone: booking.timezone || 'UTC'
+                    };
+                });
+
+                setRecentBookings(mappedBookings);
+                console.log('Recent bookings loaded successfully:', mappedBookings);
+            } else {
+                console.warn('No bookings found in response:', response);
+                setRecentBookings([]);
+            }
+        } catch (error) {
+            console.error('Failed to load recent bookings:', error);
+            setRecentBookings([]);
+            if (error.message.includes('Session expired')) {
+                setError(error.message);
+                navigate('/login');
+            } else {
+                setError('Failed to load recent bookings');
+            }
+        } finally {
+            setBookingsLoading(false);
+        }
+    }, [meetingTypes, navigate]);
 
     // Update useEffect to load bookings when meetingTypes change
     useEffect(() => {
@@ -1088,26 +1068,114 @@ const Dashboard = () => {
                                                         initial={{ opacity: 0, y: 10 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: 0.05 * idx }}
-                                                        className="px-2 py-2 border-bottom"
-                                                        style={{ background: idx % 2 === 0 ? 'rgba(245,247,250,0.7)' : 'transparent' }}
+                                                        className="booking-card mb-3 p-3 border rounded-3 shadow-sm"
+                                                        style={{
+                                                            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                                                            borderLeft: `4px solid ${booking.meetingTypeColor || '#6366f1'}`
+                                                        }}
                                                     >
-                                                        <div className="d-flex align-items-center mb-1">
-                                                            <span className="rounded-circle me-2" style={{
-                                                                width: 8, height: 8, background: booking.meetingTypeColor || '#6366f1'
-                                                            }} />
-                                                            <span className="fw-semibold">{booking.guestInfo?.name || 'Guest'}</span>
-                                                            <Badge bg={booking.status === 'confirmed' ? 'success' : 'secondary'} className="ms-2">
-                                                                {booking.status}
-                                                            </Badge>
-                                                        </div>
-                                                        <div className="small text-muted">
-                                                            {booking.meetingTypeName} &middot; {booking.date} {booking.time}
-                                                        </div>
-                                                        {booking.guestInfo?.message && (
-                                                            <div className="small text-muted fst-italic mt-1">
-                                                                "{booking.guestInfo.message.substring(0, 50)}..."
+                                                        {/* Header with Title and Status */}
+                                                        <div className="d-flex justify-content-between align-items-start mb-2">
+                                                            <div className="flex-grow-1">
+                                                                <h6 className="fw-bold text-primary mb-1">
+                                                                    {booking.title || `${booking.meetingTypeName || 'Meeting'} with ${booking.guestInfo?.name || 'Guest'}`}
+                                                                </h6>
+                                                                <Badge bg={booking.status === 'confirmed' ? 'success' : 'secondary'} className="small">
+                                                                    {booking.status || 'Confirmed'}
+                                                                </Badge>
                                                             </div>
-                                                        )}
+                                                            <div className="text-end">
+                                                                <small className="text-muted d-block">
+                                                                    <FiCalendar className="me-1" size={12} />
+                                                                    {booking.date}
+                                                                </small>
+                                                                <small className="text-muted d-block">
+                                                                    <FiClock className="me-1" size={12} />
+                                                                    {booking.time} ({booking.duration || 30} min)
+                                                                </small>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Guest Information */}
+                                                        <div className="row g-2 mb-2">
+                                                            <div className="col-md-6">
+                                                                <div className="bg-light rounded p-2">
+                                                                    <small className="text-muted d-block fw-semibold">Guest Info</small>
+                                                                    <div className="d-flex align-items-center mt-1">
+                                                                        <FiUsers className="me-1 text-primary" size={14} />
+                                                                        <small className="fw-semibold">{booking.guestInfo?.name || 'Guest'}</small>
+                                                                    </div>
+                                                                    {booking.guestInfo?.email && (
+                                                                        <div className="d-flex align-items-center mt-1">
+                                                                            <i className="fas fa-envelope me-1 text-muted" style={{ fontSize: '12px' }}></i>
+                                                                            <small className="text-muted">{booking.guestInfo.email}</small>
+                                                                        </div>
+                                                                    )}
+                                                                    {booking.guestInfo?.phone && (
+                                                                        <div className="d-flex align-items-center mt-1">
+                                                                            <FiPhone className="me-1 text-muted" size={12} />
+                                                                            <small className="text-muted">{booking.guestInfo.phone}</small>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Google Meet Information */}
+                                                            <div className="col-md-6">
+                                                                <div className="bg-light rounded p-2">
+                                                                    <small className="text-muted d-block fw-semibold">Google Meet</small>
+                                                                    {booking.googleMeetJoinUrl && (
+                                                                        <div className="mt-1">
+                                                                            <a
+                                                                                href={booking.googleMeetJoinUrl}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
+                                                                                style={{ fontSize: '11px', padding: '4px 8px' }}
+                                                                            >
+                                                                                <i className="fab fa-google me-1"></i>
+                                                                                Join Meeting
+                                                                            </a>
+                                                                            {booking.googleMeetId && (
+                                                                                <small className="text-muted d-block mt-1">
+                                                                                    ID: {booking.googleMeetId}
+                                                                                </small>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                    {booking.googleMeetHtmlLink && !booking.googleMeetJoinUrl && (
+                                                                        <div className="mt-1">
+                                                                            <a
+                                                                                href={booking.googleMeetHtmlLink}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
+                                                                                style={{ fontSize: '11px', padding: '4px 8px' }}
+                                                                            >
+                                                                                <i className="fab fa-google me-1"></i>
+                                                                                Join Meeting
+                                                                            </a>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Additional Details */}
+                                                        <div className="d-flex justify-content-between align-items-center text-muted">
+                                                            <small>
+                                                                <span className="rounded-circle me-1" style={{
+                                                                    width: 8, height: 8, background: booking.meetingTypeColor || '#6366f1', display: 'inline-block'
+                                                                }} />
+                                                                {booking.meetingTypeName || 'Meeting Type'}
+                                                            </small>
+                                                            {booking.timezone && (
+                                                                <small>
+                                                                    <i className="fas fa-globe me-1"></i>
+                                                                    {booking.timezone}
+                                                                </small>
+                                                            )}
+                                                        </div>
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -1561,75 +1629,222 @@ const Dashboard = () => {
                         </Modal.Footer>
                     </Modal>
 
-                    {/* Bookings Detail Modal - Update to handle your data structure */}
+                    {/* Enhanced Bookings Detail Modal */}
                     <Modal
                         show={showBookingsModal}
                         onHide={() => setShowBookingsModal(false)}
                         centered
-                        size="lg"
+                        size="xl"
                     >
-                        <Modal.Header closeButton>
-                            <Modal.Title>Bookings for "{selectedMeetingName}"</Modal.Title>
+                        <Modal.Header closeButton className="bg-light">
+                            <Modal.Title className="d-flex align-items-center">
+                                <FiUsers className="me-2 text-primary" />
+                                Bookings for "{selectedMeetingName}"
+                                <Badge bg="info" className="ms-2">{selectedMeetingBookings.length}</Badge>
+                            </Modal.Title>
                         </Modal.Header>
-                        <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                        <Modal.Body style={{ maxHeight: '75vh', overflowY: 'auto' }}>
                             {selectedMeetingBookings.length === 0 ? (
-                                <div className="text-center py-4">
-                                    <p className="text-muted">No bookings for this meeting type yet.</p>
+                                <div className="text-center py-5">
+                                    <div className="mb-3">
+                                        <FiUsers size={48} className="text-muted" />
+                                    </div>
+                                    <h5 className="text-muted">No bookings yet</h5>
+                                    <p className="text-muted">This meeting type hasn't received any bookings yet.</p>
                                 </div>
                             ) : (
                                 <div className="booking-list">
                                     {selectedMeetingBookings.map((booking, index) => (
-                                        <Card key={booking._id || index} className="mb-3 border">
-                                            <Card.Body className="p-3">
-                                                <Row>
-                                                    <Col md={8}>
-                                                        <h6 className="mb-2 fw-bold">{booking.guestInfo?.name || 'Guest'}</h6>
-                                                        <div className="mb-2">
-                                                            {/* <small className="text-muted d-block">
-                                                                <FiMail className="me-1" />
-                                                                {booking.guestInfo?.email || 'No email provided'}
-                                                            </small> */}
-                                                            {booking.guestInfo?.phone && (
-                                                                <small className="text-muted d-block">
-                                                                    <FiPhone className="me-1" />
-                                                                    {booking.guestInfo.phone}
+                                        <motion.div
+                                            key={booking._id || index}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                        >
+                                            <Card className="mb-4 border-0 shadow-sm">
+                                                <Card.Body className="p-4">
+                                                    {/* Header with Title and Status */}
+                                                    <div className="d-flex justify-content-between align-items-start mb-3">
+                                                        <div className="flex-grow-1">
+                                                            <h5 className="fw-bold text-primary mb-1">
+                                                                {booking.title || `${selectedMeetingName} with ${booking.guestInfo?.name || 'Guest'}`}
+                                                            </h5>
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                <Badge bg={booking.status === 'confirmed' ? 'success' : 'secondary'} className="px-3 py-2">
+                                                                    {booking.status || 'Confirmed'}
+                                                                </Badge>
+                                                                <small className="text-muted">
+                                                                    <FiClock className="me-1" />
+                                                                    {booking.duration || 30} minutes
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-end">
+                                                            <div className="text-muted mb-1">
+                                                                <FiCalendar className="me-1" size={14} />
+                                                                <strong>{booking.date}</strong>
+                                                            </div>
+                                                            <div className="text-primary fw-semibold">
+                                                                <FiClock className="me-1" size={14} />
+                                                                {booking.time}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Main Content */}
+                                                    <Row className="g-4">
+                                                        {/* Guest Information */}
+                                                        <Col md={6}>
+                                                            <div className="bg-light rounded-3 p-3 h-100">
+                                                                <h6 className="text-muted mb-3 fw-semibold d-flex align-items-center">
+                                                                    <FiUsers className="me-2" />
+                                                                    Guest Information
+                                                                </h6>
+                                                                <div className="space-y-2">
+                                                                    <div className="d-flex align-items-center mb-2">
+                                                                        <div className="bg-primary rounded-circle p-2 me-3" style={{ width: '32px', height: '32px' }}>
+                                                                            <FiUsers className="text-white" size={16} />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="fw-semibold">{booking.guestInfo?.name || 'Guest'}</div>
+                                                                            <small className="text-muted">Name</small>
+                                                                        </div>
+                                                                    </div>
+                                                                    {booking.guestInfo?.email && (
+                                                                        <div className="d-flex align-items-center mb-2">
+                                                                            <div className="bg-info rounded-circle p-2 me-3" style={{ width: '32px', height: '32px' }}>
+                                                                                <i className="fas fa-envelope text-white" style={{ fontSize: '12px' }}></i>
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="fw-semibold">{booking.guestInfo.email}</div>
+                                                                                <small className="text-muted">Email</small>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    {booking.guestInfo?.phone && (
+                                                                        <div className="d-flex align-items-center mb-2">
+                                                                            <div className="bg-success rounded-circle p-2 me-3" style={{ width: '32px', height: '32px' }}>
+                                                                                <FiPhone className="text-white" size={16} />
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="fw-semibold">{booking.guestInfo.phone}</div>
+                                                                                <small className="text-muted">Phone</small>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    {booking.guestInfo?.message && (
+                                                                        <div className="mt-3 p-2 bg-white rounded border-start border-primary border-3">
+                                                                            <small className="text-muted fw-semibold d-block mb-1">Message:</small>
+                                                                            <small className="text-dark">{booking.guestInfo.message}</small>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </Col>
+
+                                                        {/* Google Meet & Meeting Details */}
+                                                        <Col md={6}>
+                                                            <div className="bg-light rounded-3 p-3 h-100">
+                                                                <h6 className="text-muted mb-3 fw-semibold d-flex align-items-center">
+                                                                    <i className="fab fa-google me-2"></i>
+                                                                    Google Meet Details
+                                                                </h6>
+                                                                <div className="space-y-3">
+                                                                    {(booking.googleMeetJoinUrl || booking.googleMeetHtmlLink) && (
+                                                                        <div className="mb-3">
+                                                                            <a
+                                                                                href={booking.googleMeetJoinUrl || booking.googleMeetHtmlLink}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="btn btn-primary w-100 d-flex align-items-center justify-content-center py-2"
+                                                                            >
+                                                                                <i className="fab fa-google me-2"></i>
+                                                                                Join Google Meet
+                                                                            </a>
+                                                                        </div>
+                                                                    )}
+                                                                    {booking.googleMeetId && (
+                                                                        <div className="bg-white rounded p-2 border">
+                                                                            <small className="text-muted fw-semibold d-block">Meeting ID:</small>
+                                                                            <code className="text-primary">{booking.googleMeetId}</code>
+                                                                        </div>
+                                                                    )}
+                                                                    {(booking.googleMeetJoinUrl || booking.googleMeetHtmlLink) && (
+                                                                        <div className="bg-white rounded p-2 border">
+                                                                            <small className="text-muted fw-semibold d-block mb-1">Join URL:</small>
+                                                                            <div className="d-flex align-items-center">
+                                                                                <input
+                                                                                    type="text"
+                                                                                    className="form-control form-control-sm me-2"
+                                                                                    value={booking.googleMeetJoinUrl || booking.googleMeetHtmlLink}
+                                                                                    readOnly
+                                                                                    style={{ fontSize: '11px' }}
+                                                                                />
+                                                                                <Button
+                                                                                    variant="outline-primary"
+                                                                                    size="sm"
+                                                                                    onClick={() => navigator.clipboard.writeText(booking.googleMeetJoinUrl || booking.googleMeetHtmlLink)}
+                                                                                >
+                                                                                    <FiCopy size={12} />
+                                                                                </Button>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    {booking.timezone && (
+                                                                        <div className="bg-white rounded p-2 border">
+                                                                            <small className="text-muted fw-semibold d-block">Timezone:</small>
+                                                                            <div className="text-dark">
+                                                                                <i className="fas fa-globe me-1 text-muted"></i>
+                                                                                {booking.timezone}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </Col>
+                                                    </Row>
+
+                                                    {/* Footer with additional info */}
+                                                    <div className="mt-3 pt-3 border-top">
+                                                        <div className="d-flex justify-content-between align-items-center text-muted">
+                                                            <small>
+                                                                Created: {new Date(booking.createdAt).toLocaleDateString('en-US', {
+                                                                    year: 'numeric',
+                                                                    month: 'short',
+                                                                    day: 'numeric',
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit'
+                                                                })}
+                                                            </small>
+                                                            {booking.scheduledAt && (
+                                                                <small>
+                                                                    Scheduled: {new Date(booking.scheduledAt).toLocaleDateString('en-US', {
+                                                                        year: 'numeric',
+                                                                        month: 'short',
+                                                                        day: 'numeric',
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit'
+                                                                    })}
                                                                 </small>
                                                             )}
                                                         </div>
-                                                        {booking.guestInfo?.message && (
-                                                            <div className="mb-2">
-                                                                <small className="text-muted">
-                                                                    <strong>Message:</strong> {booking.guestInfo.message}
-                                                                </small>
-                                                            </div>
-                                                        )}
-                                                    </Col>
-                                                    <Col md={4} className="text-md-end">
-                                                        <div className="mb-1">
-                                                            <small className="text-muted d-block">
-                                                                <FiCalendar className="me-1" />
-                                                                {booking.date}
-                                                            </small>
-                                                            <small className="text-muted d-block">
-                                                                <FiClock className="me-1" />
-                                                                {booking.time}
-                                                            </small>
-                                                        </div>
-                                                        <Badge bg={booking.status === 'confirmed' ? 'success' : 'secondary'} className="small">
-                                                            {booking.status || 'Confirmed'}
-                                                        </Badge>
-                                                    </Col>
-                                                </Row>
-                                            </Card.Body>
-                                        </Card>
+                                                    </div>
+                                                </Card.Body>
+                                            </Card>
+                                        </motion.div>
                                     ))}
                                 </div>
                             )}
                         </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={() => setShowBookingsModal(false)}>
-                                Close
-                            </Button>
+                        <Modal.Footer className="bg-light">
+                            <div className="d-flex w-100 justify-content-between align-items-center">
+                                <small className="text-muted">
+                                    Showing {selectedMeetingBookings.length} booking{selectedMeetingBookings.length !== 1 ? 's' : ''}
+                                </small>
+                                <Button variant="secondary" onClick={() => setShowBookingsModal(false)}>
+                                    Close
+                                </Button>
+                            </div>
                         </Modal.Footer>
                     </Modal>
                 </div>

@@ -505,7 +505,79 @@ class MeetingService {
 
         return data;
     }
+
+    /** GET recent bookings for dashboard - combines bookings from all meeting types */
+    async getRecentBookings(limit = 10) {
+        const token = this.getAuthToken();
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/meetings/recent-bookings?limit=${limit}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    return this.handleTokenRefresh(() => this.getRecentBookings(limit));
+                }
+                throw new Error(data.message || 'Failed to get recent bookings');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
+    }
+
+    /** GET recent bookings by aggregating from meeting types - fallback method */
+    async getRecentBookingsFromMeetingTypes(meetingTypes, limit = 10) {
+        try {
+            const allBookings = [];
+
+            // Get bookings from each meeting type
+            for (const meetingType of meetingTypes.slice(0, 5)) { // Limit to first 5 meeting types to avoid too many requests
+                try {
+                    const response = await this.getPublicBookings(meetingType._id || meetingType.id);
+                    if (response.success && response.data && response.data.bookings) {
+                        // Add meeting type info to each booking
+                        const bookingsWithMeetingType = response.data.bookings.map(booking => ({
+                            ...booking,
+                            meetingTypeName: meetingType.name,
+                            meetingTypeColor: meetingType.color
+                        }));
+                        allBookings.push(...bookingsWithMeetingType);
+                    }
+                } catch (error) {
+                    console.warn(`Failed to get bookings for meeting type ${meetingType.name}:`, error);
+                    // Continue with other meeting types
+                }
+            }
+
+            // Sort by creation date (most recent first) and limit
+            const sortedBookings = allBookings
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, limit);
+
+            return {
+                success: true,
+                data: {
+                    bookings: sortedBookings,
+                    total: sortedBookings.length
+                }
+            };
+        } catch (error) {
+            console.error('Failed to get recent bookings from meeting types:', error);
+            throw error;
+        }
+    }
 }
 
-export default new MeetingService();
+const meetingService = new MeetingService();
+export default meetingService;
 
