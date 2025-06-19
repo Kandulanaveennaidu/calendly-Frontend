@@ -162,24 +162,18 @@ class TimezoneService {
 
             // Handle the actual API response structure
             let slots = [];
-
             if (data.success && data.data) {
-                // Check for 'times' field (as per your API response)
-                if (Array.isArray(data.data.times)) {
+                if (Array.isArray(data.data.availableTimes)) {
+                    slots = data.data.availableTimes;
+                } else if (Array.isArray(data.data.times)) {
                     slots = data.data.times;
-                }
-                // Fallback to 'slots' field
-                else if (Array.isArray(data.data.slots)) {
+                } else if (Array.isArray(data.data.slots)) {
                     slots = data.data.slots;
-                }
-                // If data itself is an array
-                else if (Array.isArray(data.data)) {
+                } else if (Array.isArray(data.data)) {
                     slots = data.data;
                 }
             }
-
             console.log('Processed available slots:', slots);
-
             return {
                 success: true,
                 data: slots, // Always return an array

@@ -294,39 +294,28 @@ const PublicScheduling = () => {
         }
     };
 
+    // In loadAvailableSlots, ensure correct API call and date format
     const loadAvailableSlots = async () => {
         try {
             setLoadingSlots(true);
-            const dateStr = selectedDate.toISOString().split('T')[0];
-
+            const dateStr = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD
             console.log('Loading slots for:', { meetingTypeId, dateStr, selectedTimeZone });
-
-            const response = await publicSchedulingService.getAvailableSlots(
+            // Use timezoneService to fetch available times with correct params
+            const response = await timezoneService.getAvailableTimes(
                 meetingTypeId,
                 dateStr,
                 selectedTimeZone
             );
-
             if (response.success) {
-                // Ensure we always set an array
                 const slots = response.data || [];
-                // Additional safety check to ensure it's an array
-                const validSlots = Array.isArray(slots) ? slots : [];
-                setAvailableSlots(validSlots);
-
-                console.log('Final available slots set:', validSlots);
-
-                // Log timezone conversion info if available
-                if (response.originalTimezone && response.requestedTimezone) {
-                    console.log(`Times converted from ${response.originalTimezone} to ${response.requestedTimezone}`);
-                }
+                setAvailableSlots(Array.isArray(slots) ? slots : []);
+                console.log('Final available slots set:', slots);
             } else {
-                console.warn('API response not successful:', response);
-                setAvailableSlots([]); // Always set empty array on failure
+                setAvailableSlots([]);
             }
         } catch (error) {
             console.error('Failed to load available slots:', error);
-            setAvailableSlots([]); // Always set empty array on error
+            setAvailableSlots([]);
         } finally {
             setLoadingSlots(false);
         }
@@ -822,8 +811,8 @@ const PublicScheduling = () => {
                                                                         {availableSlots.length === 0 ? (
                                                                             <div className="text-center py-4">
                                                                                 <p className="text-muted small">
-                                                                                    No available times for this date.
-                                                                                    <br />Please select another date.
+                                                                                    <strong>No available times for this date.</strong><br />
+                                                                                    Please select another date or check back later.
                                                                                 </p>
                                                                             </div>
                                                                         ) : (
@@ -1189,19 +1178,41 @@ const PublicScheduling = () => {
                             </Card.Body>
                         </Card>
 
-                        {bookingResult?.zoomMeeting && (
-                            <div className="zoom-info mt-4">
-                                <h5 className="fw-bold text-primary mb-2">Zoom Meeting Details</h5>
+                        {bookingResult?.googleMeeting && (
+                            <div className="google-meet-info mt-4">
+                                <h5 className="fw-bold text-primary mb-2">Google Meet Details</h5>
                                 <p>
                                     <strong>Join Link:</strong>{' '}
-                                    <a href={bookingResult.zoomMeeting.joinUrl} target="_blank" rel="noopener noreferrer">
-                                        {bookingResult.zoomMeeting.joinUrl}
+                                    <a href={bookingResult.googleMeeting.joinUrl} target="_blank" rel="noopener noreferrer">
+                                        {bookingResult.googleMeeting.joinUrl}
                                     </a>
                                 </p>
                                 <p>
-                                    <strong>Meeting ID:</strong> {bookingResult.zoomMeeting.meetingNumber}<br />
-                                    <strong>Password:</strong> {bookingResult.zoomMeeting.password}
+                                    <strong>Meeting ID:</strong> {bookingResult.googleMeeting.meetingId}
                                 </p>
+                                {bookingResult.googleMeeting.status === 'fallback' && (
+                                    <div className="alert alert-warning mt-2">
+                                        <strong>Instant Google Meet:</strong> {bookingResult.googleMeeting.instructions || 'Click the link to start an instant Google Meet.'}
+                                    </div>
+                                )}
+                                <a
+                                    href={bookingResult.googleMeeting.joinUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn btn-success mt-2"
+                                >
+                                    Join Google Meet
+                                </a>
+                                {bookingResult.googleMeeting.htmlLink && (
+                                    <a
+                                        href={bookingResult.googleMeeting.htmlLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-outline-primary mt-2"
+                                    >
+                                        View in Google Calendar
+                                    </a>
+                                )}
                             </div>
                         )}
 
