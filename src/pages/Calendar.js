@@ -17,6 +17,7 @@ const CalendarPage = () => {
     const [editSuccessMessage, setEditSuccessMessage] = useState("");
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [successType, setSuccessType] = useState('success'); // Track success alert type
     const [loading, setLoading] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -39,7 +40,8 @@ const CalendarPage = () => {
             type: 'video-call',
             details: 'Google Meet'
         },
-        timezone: 'UTC'
+        timezone: 'UTC',
+        status: 'confirmed' // Default to confirmed
     });
 
     // Load initial data on component mount
@@ -180,7 +182,8 @@ const CalendarPage = () => {
                 type: selectedEvent.type || 'meeting',
                 description: selectedEvent.description || '',
                 location: selectedEvent.location || { type: 'video-call', details: 'Google Meet' },
-                timezone: selectedEvent.timezone || 'UTC'
+                timezone: selectedEvent.timezone || 'UTC',
+                status: selectedEvent.status || 'confirmed'
             });
             setIsEditing(true);
             setShowEventModal(false);
@@ -217,7 +220,8 @@ const CalendarPage = () => {
                     type: newEvent.location?.type || 'video-call',
                     details: newEvent.location?.details || 'Google Meet'
                 },
-                timezone: newEvent.timezone || 'UTC'
+                timezone: newEvent.timezone || 'UTC',
+                status: newEvent.status || 'confirmed'
             };
 
             // Validate required fields
@@ -238,12 +242,20 @@ const CalendarPage = () => {
                     eventData
                 );
                 console.log('Event updated:', response);
-                setSuccess(response.message || 'Event updated successfully!');
+                const statusMessage = eventData.status === 'confirmed'
+                    ? '✅ Meeting Updated & Confirmed!'
+                    : '⏳ Meeting Updated (Pending Confirmation)';
+                setSuccess(response.message || statusMessage);
+                setSuccessType(eventData.status === 'confirmed' ? 'success' : 'warning');
             } else {
                 // 2. Create new event
                 const response = await calendarService.createEvent(eventData);
                 console.log('Event created:', response);
-                setSuccess(response.message || 'Event created successfully!');
+                const statusMessage = eventData.status === 'confirmed'
+                    ? '✅ Meeting Created & Confirmed!'
+                    : '⏳ Meeting Created (Pending Confirmation)';
+                setSuccess(response.message || statusMessage);
+                setSuccessType(eventData.status === 'confirmed' ? 'success' : 'warning');
             }
 
             // Reload all data
@@ -318,12 +330,14 @@ const CalendarPage = () => {
                 type: 'video-call',
                 details: 'Google Meet'
             },
-            timezone: 'UTC'
+            timezone: 'UTC',
+            status: 'confirmed'
         });
         setIsEditing(false);
         setEditSuccessMessage('');
         setError('');
         setSuccess('');
+        setSuccessType('success');
     };
 
     // Manual refresh function
@@ -374,7 +388,7 @@ const CalendarPage = () => {
                                 className="d-flex justify-content-between align-items-center"
                             >
                                 <div>
-                                    <h1 className="display-5 fw-bold mb-1 text-gradient">Calendar</h1>
+                                    <h1 className="display-5 fw-bold mb-1 text-gradient">Events</h1>
                                     <p className="text-muted mb-0">
                                         View and manage your scheduled meetings - {todaysEvents.length} events today
                                     </p>
@@ -416,8 +430,36 @@ const CalendarPage = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
                                     >
-                                        <Alert variant="success" dismissible onClose={() => setSuccess('')} className="mb-4 shadow">
-                                            {success}
+                                        <Alert
+                                            variant={successType}
+                                            dismissible
+                                            onClose={() => {
+                                                setSuccess('');
+                                                setSuccessType('success');
+                                            }}
+                                            className="mb-4 shadow d-flex align-items-center"
+                                        >
+                                            {successType === 'success' ? (
+                                                <div className="d-flex align-items-center w-100">
+                                                    <span className="me-2" style={{ fontSize: '1.2rem' }}>✅</span>
+                                                    <div>
+                                                        <strong>{success}</strong>
+                                                        <div className="small text-muted mt-1">
+                                                            Meeting is confirmed and ready to go!
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="d-flex align-items-center w-100">
+                                                    <span className="me-2" style={{ fontSize: '1.2rem' }}>⏳</span>
+                                                    <div>
+                                                        <strong>{success}</strong>
+                                                        <div className="small text-muted mt-1">
+                                                            Meeting requires confirmation from attendees.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </Alert>
                                     </motion.div>
                                 )}
@@ -458,14 +500,19 @@ const CalendarPage = () => {
                                                             {dayEvents.slice(0, 2).map((event, index) => (
                                                                 <div
                                                                     key={index}
-                                                                    className={`event-indicator event-indicator-${getEventTypeColor(event.type)}`}
+                                                                    className={`event-indicator event-indicator-${getEventTypeColor(event.type)} ${event.status === 'pending' ? 'pending-event' : ''}`}
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         handleEventClick(event);
                                                                     }}
-                                                                    title={`${event.title} at ${event.time}`}
+                                                                    title={`${event.title} at ${event.time} ${event.status ? `(${event.status})` : ''}`}
+                                                                    style={{
+                                                                        opacity: event.status === 'pending' ? 0.7 : 1,
+                                                                        border: event.status === 'pending' ? '1px dashed #ffc107' : 'none'
+                                                                    }}
                                                                 >
-                                                                    {event.title.length > 8 ? `${event.title.substring(0, 7)}...` : event.title}
+                                                                    {event.status === 'pending' && <span style={{ fontSize: '8px', marginRight: '2px' }}>⏳</span>}
+                                                                    {event.title.length > 6 ? `${event.title.substring(0, 5)}...` : event.title}
                                                                 </div>
                                                             ))}
                                                             {dayEvents.length > 2 && (
@@ -519,9 +566,19 @@ const CalendarPage = () => {
                                                                 {event.attendees ? event.attendees.length : 0} attendees
                                                             </div>
                                                         </div>
-                                                        <Badge bg={getEventTypeColor(event.type)} className="text-capitalize">
-                                                            {event.type}
-                                                        </Badge>
+                                                        <div className="d-flex flex-column align-items-end gap-1">
+                                                            <Badge bg={getEventTypeColor(event.type)} className="text-capitalize">
+                                                                {event.type}
+                                                            </Badge>
+                                                            {event.status && (
+                                                                <Badge
+                                                                    bg={event.status === 'confirmed' ? 'success' : 'warning'}
+                                                                    className="small px-2"
+                                                                >
+                                                                    {event.status === 'confirmed' ? '✓ Confirmed' : '⏳ Pending'}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </motion.div>
                                             ))
@@ -554,6 +611,16 @@ const CalendarPage = () => {
                                                         <small className="text-muted">
                                                             {event.date ? new Date(event.date).toLocaleDateString() : 'No date'} at {event.time || 'No time'}
                                                         </small>
+                                                        {event.status && (
+                                                            <div className="mt-1">
+                                                                <Badge
+                                                                    bg={event.status === 'confirmed' ? 'success' : 'warning'}
+                                                                    className="small"
+                                                                >
+                                                                    {event.status === 'confirmed' ? '✓ Confirmed' : '⏳ Pending'}
+                                                                </Badge>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     <Badge bg={getEventTypeColor(event.type)}>
                                                         {event.type}
@@ -685,6 +752,51 @@ const CalendarPage = () => {
                                         className="form-control-modern"
                                     />
                                 </Form.Group>
+
+                                <Row>
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="d-flex align-items-center">
+                                                Meeting Status *
+                                                <Badge
+                                                    bg={newEvent.status === 'confirmed' ? 'success' : 'warning'}
+                                                    className="ms-2 px-2"
+                                                >
+                                                    {newEvent.status === 'confirmed' ? '✓ Confirmed' : '⏳ Pending'}
+                                                </Badge>
+                                            </Form.Label>
+                                            <Form.Select
+                                                value={newEvent.status}
+                                                onChange={(e) => setNewEvent({ ...newEvent, status: e.target.value })}
+                                                className="form-control-modern"
+                                            >
+                                                <option value="confirmed">✅ Confirmed - Meeting is scheduled and confirmed</option>
+                                                <option value="pending">⏳ Pending - Waiting for confirmation</option>
+                                            </Form.Select>
+                                            <Form.Text className="text-muted">
+                                                {newEvent.status === 'confirmed'
+                                                    ? 'This meeting is confirmed and ready to go!'
+                                                    : 'This meeting requires confirmation from attendees.'}
+                                            </Form.Text>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="mt-4 p-3 rounded" style={{
+                                            backgroundColor: newEvent.status === 'confirmed' ? '#d4edda' : '#fff3cd',
+                                            border: `1px solid ${newEvent.status === 'confirmed' ? '#c3e6cb' : '#ffeaa7'}`,
+                                            color: newEvent.status === 'confirmed' ? '#155724' : '#856404'
+                                        }}>
+                                            <small className="fw-semibold d-block mb-1">
+                                                {newEvent.status === 'confirmed' ? '✅ Ready to Schedule' : '⏳ Needs Confirmation'}
+                                            </small>
+                                            <small>
+                                                {newEvent.status === 'confirmed'
+                                                    ? 'This meeting will be immediately available and confirmed.'
+                                                    : 'Attendees will receive a confirmation request for this meeting.'}
+                                            </small>
+                                        </div>
+                                    </Col>
+                                </Row>
 
                                 <div className="d-flex justify-content-end gap-2">
                                     <Button variant="outline-secondary" onClick={resetForm} disabled={loading}>
@@ -888,6 +1000,218 @@ const CalendarPage = () => {
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                 }
+
+                /* Status-aware event styling */
+                .pending-event {
+                    animation: pulse-border 2s infinite;
+                }
+
+                @keyframes pulse-border {
+                    0% { border-color: #ffc107; }
+                    50% { border-color: #ffcd39; }
+                    100% { border-color: #ffc107; }
+                }
+
+                .event-indicator {
+                    transition: all 0.3s ease;
+                }
+
+                .event-indicator:hover {
+                    transform: scale(1.05);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                }
+
+                /* Enhanced Professional Footer */
+                .enhanced-footer {
+                    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+                    color: #e2e8f0;
+                    position: relative;
+                    overflow: hidden;
+                    padding: 4rem 0 2rem;
+                    margin-top: 4rem;
+                }
+
+                .footer-background {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    opacity: 0.1;
+                }
+
+                .footer-pattern {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-image: 
+                        radial-gradient(circle at 25% 25%, rgba(103, 126, 234, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 75% 75%, rgba(240, 147, 251, 0.1) 0%, transparent 50%);
+                    animation: patternFloat 20s ease-in-out infinite;
+                }
+
+                .footer-glow {
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    right: -50%;
+                    bottom: -50%;
+                    background: radial-gradient(circle, rgba(103, 126, 234, 0.03) 0%, transparent 70%);
+                    animation: glowPulse 8s ease-in-out infinite;
+                }
+
+                @keyframes patternFloat {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    50% { transform: translate(-10px, -10px) scale(1.05); }
+                }
+
+                @keyframes glowPulse {
+                    0%, 100% { opacity: 0.3; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.1); }
+                }
+
+                .footer-main {
+                    position: relative;
+                    z-index: 2;
+                }
+
+                .footer-brand-section {
+                    padding: 0 2rem;
+                }
+
+                .brand-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+
+                .brand-icon-footer {
+                    width: 60px;
+                    height: 60px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 15px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    box-shadow: 0 10px 30px rgba(103, 126, 234, 0.3);
+                }
+
+                .brand-name-footer {
+                    font-size: 2rem;
+                    font-weight: 800;
+                    color: white;
+                    margin: 0;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+
+                .brand-description {
+                    color: #a0aec0;
+                    line-height: 1.6;
+                    font-size: 1rem;
+                    margin-bottom: 2rem;
+                }
+
+                .footer-section-title {
+                    color: white;
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    margin-bottom: 2rem;
+                    display: flex;
+                    align-items: center;
+                    position: relative;
+                }
+
+                .footer-section-title::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -8px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 30px;
+                    height: 2px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 1px;
+                }
+
+                .footer-nav-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    text-align: center;
+                }
+
+                .footer-nav-list li {
+                    margin-bottom: 1rem;
+                }
+
+                .footer-nav-link {
+                    color: #a0aec0;
+                    text-decoration: none;
+                    font-size: 0.95rem;
+                    display: inline-flex;
+                    align-items: center;
+                    transition: all 0.3s ease;
+                    position: relative;
+                }
+
+                .footer-nav-link:hover {
+                    color: white;
+                    text-decoration: none;
+                }
+
+                .footer-divider-enhanced {
+                    margin: 3rem 0;
+                    position: relative;
+                    height: 1px;
+                    overflow: hidden;
+                }
+
+                .divider-line {
+                    width: 100%;
+                    height: 1px;
+                    background: linear-gradient(90deg, 
+                        transparent 0%, 
+                        rgba(255, 255, 255, 0.1) 25%, 
+                        rgba(103, 126, 234, 0.3) 50%, 
+                        rgba(255, 255, 255, 0.1) 75%, 
+                        transparent 100%
+                    );
+                }
+
+                .divider-glow {
+                    position: absolute;
+                    top: -5px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 100px;
+                    height: 10px;
+                    background: radial-gradient(ellipse, rgba(103, 126, 234, 0.4) 0%, transparent 70%);
+                    border-radius: 50%;
+                }
+
+                .footer-bottom {
+                    position: relative;
+                    z-index: 2;
+                    padding-top: 2rem;
+                }
+
+                .copyright-text {
+                    color: #a0aec0;
+                    margin: 0;
+                    font-size: 0.9rem;
+                }
+
+                .brand-highlight {
+                    color: white;
+                    font-weight: 600;
+                }
+
                 @media (max-width: 991.98px) {
                     .calendar-content-wrapper {
                         max-width: 100%;
@@ -897,40 +1221,148 @@ const CalendarPage = () => {
                         min-height: 320px;
                         height: auto;
                     }
+                    .enhanced-footer {
+                        padding: 3rem 0 2rem;
+                    }
+                    .footer-brand-section {
+                        padding: 0;
+                        margin-bottom: 2rem;
+                    }
+                    .brand-container {
+                        justify-content: center;
+                    }
+                    .footer-section-title {
+                        justify-content: center;
+                    }
+                    .footer-nav-list li {
+                        display: inline-block;
+                        margin: 0.5rem 1rem;
+                    }
                 }
             `}</style>
 
-            {/* Footer */}
-            <footer className="mt-5 py-4 bg-light border-top">
-                <Container>
-                    <Row className="align-items-center">
-                        <Col md={6}>
-                            <div className="d-flex align-items-center">
-                                <FiCalendar className="me-2 text-primary" size={20} />
-                                <span className="fw-bold text-primary">meetslot.ai</span>
-                                <span className="text-muted ms-2">© 2025</span>
-                            </div>
+            {/* Enhanced Professional Footer */}
+            <footer className="enhanced-footer">
+                <div className="footer-background">
+                    <div className="footer-pattern"></div>
+                    <div className="footer-glow"></div>
+                </div>
+
+                <Container className="position-relative">
+                    {/* Main Footer Content */}
+                    <Row className="footer-main justify-content-center">
+                        <Col lg={4} md={6} className="mb-4 text-center">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8 }}
+                                viewport={{ once: true }}
+                                className="footer-brand-section"
+                            >
+                                <div className="brand-container mb-4 justify-content-center">
+                                    <motion.div
+                                        className="brand-icon-footer"
+                                        animate={{
+                                            rotate: [0, 5, -5, 0],
+                                            scale: [1, 1.05, 1]
+                                        }}
+                                        transition={{
+                                            duration: 4,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                    >
+                                        <FiCalendar size={28} />
+                                    </motion.div>
+                                    <h4 className="brand-name-footer">meetslot.ai</h4>
+                                </div>
+
+                                <p className="brand-description">
+                                    Making scheduling simple and efficient for everyone.
+                                </p>
+                            </motion.div>
                         </Col>
-                        <Col md={6} className="text-md-end mt-3 mt-md-0">
-                            <div className="d-flex justify-content-md-end justify-content-start gap-4">
-                                <span className="text-muted text-decoration-none small" style={{ cursor: 'pointer' }}>
-                                    Privacy Policy
-                                </span>
-                                <span className="text-muted text-decoration-none small" style={{ cursor: 'pointer' }}>
-                                    Terms of Service
-                                </span>
-                                <span className="text-muted text-decoration-none small" style={{ cursor: 'pointer' }}>
-                                    Support
-                                </span>
-                            </div>
+
+                        <Col lg={6} md={6} className="mb-4">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.2 }}
+                                viewport={{ once: true }}
+                                className="text-center"
+                            >
+                                <h6 className="footer-section-title justify-content-center">
+                                    <FiUsers className="me-2" />
+                                    Legal & Support
+                                </h6>
+                                <ul className="footer-nav-list">
+                                    {[
+                                        { name: "Privacy Policy", href: "/privacy-policy", external: true },
+                                        { name: "Terms of Service", href: "/terms-of-service", external: true },
+                                        { name: "Support Center", href: "/support", external: true }
+                                    ].map((item, index) => (
+                                        <motion.li
+                                            key={index}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            whileInView={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 * index }}
+                                            viewport={{ once: true }}
+                                            className="d-inline-block mx-3"
+                                        >
+                                            <motion.a
+                                                href={item.href}
+                                                className="footer-nav-link"
+                                                target={item.external ? "_blank" : "_self"}
+                                                rel={item.external ? "noopener noreferrer" : ""}
+                                                whileHover={{ x: 5, color: "#667eea" }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                {item.name}
+                                                {item.external && <FiUsers className="ms-1" size={12} />}
+                                            </motion.a>
+                                        </motion.li>
+                                    ))}
+                                </ul>
+                            </motion.div>
                         </Col>
                     </Row>
-                    <Row className="mt-3">
-                        <Col>
-                            <hr className="my-2" />
-                            <p className="text-center text-muted small mb-0">
-                                Making scheduling simple and efficient for everyone.
-                            </p>
+
+                    {/* Animated Divider */}
+                    <motion.div
+                        className="footer-divider-enhanced"
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: 1 }}
+                        transition={{ duration: 1.2 }}
+                        viewport={{ once: true }}
+                    >
+                        <div className="divider-line"></div>
+                        <motion.div
+                            className="divider-glow"
+                            animate={{
+                                opacity: [0.5, 1, 0.5],
+                                scale: [1, 1.1, 1]
+                            }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        />
+                    </motion.div>
+
+                    {/* Bottom Footer */}
+                    <Row className="footer-bottom align-items-center">
+                        <Col className="text-center">
+                            <motion.p
+                                className="copyright-text"
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
+                                transition={{ duration: 0.8, delay: 0.5 }}
+                                viewport={{ once: true }}
+                            >
+                                © 2024 <span className="brand-highlight">meetslot.ai</span>.
+                                All rights reserved.
+                            </motion.p>
                         </Col>
                     </Row>
                 </Container>

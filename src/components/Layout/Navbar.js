@@ -310,10 +310,10 @@ const CustomNavbar = () => {
                                         </Nav.Link>
                                         <Nav.Link
                                             as={Link}
-                                            to="/calendar"
-                                            className={getNavLinkClasses('/calendar')}
+                                            to="/events"
+                                            className={getNavLinkClasses('/events')}
                                         >
-                                            Calendar
+                                            Events
                                         </Nav.Link>
                                         <Nav.Link
                                             as={Link}

@@ -713,85 +713,155 @@ const Dashboard = () => {
     const loadRecentBookings = useCallback(async () => {
         try {
             setBookingsLoading(true);
-            console.log('Loading recent bookings from meeting types:', meetingTypes);
+            console.log('Loading recent bookings...');
 
-            // Use the fallback method to get bookings from meeting types
-            const response = await meetingService.getRecentBookingsFromMeetingTypes(meetingTypes, 10);
+            // Use the direct API method first
+            try {
+                const response = await meetingService.getRecentBookings(10);
+                console.log('Recent bookings API response:', response);
 
-            console.log('Recent bookings response:', response);
+                if (response.success && response.data && response.data.bookings) {
+                    // Map the bookings to the expected format
+                    const mappedBookings = response.data.bookings.map(booking => {
+                        // Format time from HH:MM to 12-hour format
+                        let formattedTime;
+                        if (booking.time) {
+                            const [hours, minutes] = booking.time.split(':');
+                            const hour24 = parseInt(hours, 10);
+                            const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                            const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                            formattedTime = `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+                        } else {
+                            // Fallback to createdAt time if time field is not available
+                            const bookingDate = new Date(booking.createdAt);
+                            formattedTime = bookingDate.toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                        }
 
-            if (response.success && response.data && response.data.bookings) {
-                // Map the bookings to the expected format
-                const mappedBookings = response.data.bookings.map(booking => {
-                    // Format time from HH:MM to 12-hour format
-                    let formattedTime;
-                    if (booking.time) {
-                        const [hours, minutes] = booking.time.split(':');
-                        const hour24 = parseInt(hours, 10);
-                        const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-                        const ampm = hour24 >= 12 ? 'PM' : 'AM';
-                        formattedTime = `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
-                    } else {
-                        // Fallback to createdAt time if time field is not available
-                        const bookingDate = new Date(booking.createdAt);
-                        formattedTime = bookingDate.toLocaleTimeString('en-US', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true
-                        });
-                    }
+                        // Format the date
+                        const formattedDate = booking.date ?
+                            new Date(booking.date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            }) :
+                            new Date(booking.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
 
-                    // Format the date
-                    const formattedDate = booking.date ?
-                        new Date(booking.date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                        }) :
-                        new Date(booking.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                        });
+                        return {
+                            ...booking,
+                            date: formattedDate,
+                            time: formattedTime,
+                            title: booking.title || `${booking.meetingTypeName || 'Meeting'} with ${booking.guestInfo?.name || 'Guest'}`,
+                            guestInfo: {
+                                name: booking.guestInfo?.name || 'Guest',
+                                email: booking.guestInfo?.email || '',
+                                phone: booking.guestInfo?.phone || '',
+                                message: booking.guestInfo?.message || ''
+                            },
+                            googleMeetJoinUrl: booking.googleMeetJoinUrl || null,
+                            googleMeetHtmlLink: booking.googleMeetHtmlLink || null,
+                            googleMeetId: booking.googleMeetId || null,
+                            duration: booking.duration || 30,
+                            timezone: booking.timezone || 'UTC'
+                        };
+                    });
 
-                    return {
-                        ...booking,
-                        date: formattedDate,
-                        time: formattedTime,
-                        title: booking.title || `${booking.meetingTypeName || 'Meeting'} with ${booking.guestInfo?.name || 'Guest'}`,
-                        guestInfo: {
-                            name: booking.guestInfo?.name || 'Guest',
-                            email: booking.guestInfo?.email || '',
-                            phone: booking.guestInfo?.phone || '',
-                            message: booking.guestInfo?.message || ''
-                        },
-                        googleMeetJoinUrl: booking.googleMeetJoinUrl || null,
-                        googleMeetHtmlLink: booking.googleMeetHtmlLink || null,
-                        googleMeetId: booking.googleMeetId || null,
-                        duration: booking.duration || 30,
-                        timezone: booking.timezone || 'UTC'
-                    };
-                });
+                    setRecentBookings(mappedBookings);
+                    console.log('Recent bookings loaded successfully:', mappedBookings);
+                    return; // Exit early if successful
+                }
+            } catch (directApiError) {
+                console.warn('Direct API method failed, falling back to meeting types method:', directApiError);
+            }
 
-                setRecentBookings(mappedBookings);
-                console.log('Recent bookings loaded successfully:', mappedBookings);
+            // Fallback method: Use the fallback method to get bookings from meeting types
+            if (meetingTypes && meetingTypes.length > 0) {
+                console.log('Using fallback method with meeting types:', meetingTypes);
+                const response = await meetingService.getRecentBookingsFromMeetingTypes(meetingTypes, 10);
+
+                console.log('Fallback recent bookings response:', response);
+
+                if (response.success && response.data && response.data.bookings) {
+                    // Map the bookings to the expected format (same as above)
+                    const mappedBookings = response.data.bookings.map(booking => {
+                        // Format time from HH:MM to 12-hour format
+                        let formattedTime;
+                        if (booking.time) {
+                            const [hours, minutes] = booking.time.split(':');
+                            const hour24 = parseInt(hours, 10);
+                            const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+                            const ampm = hour24 >= 12 ? 'PM' : 'AM';
+                            formattedTime = `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+                        } else {
+                            const bookingDate = new Date(booking.createdAt);
+                            formattedTime = bookingDate.toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                        }
+
+                        const formattedDate = booking.date ?
+                            new Date(booking.date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            }) :
+                            new Date(booking.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+
+                        return {
+                            ...booking,
+                            date: formattedDate,
+                            time: formattedTime,
+                            title: booking.title || `${booking.meetingTypeName || 'Meeting'} with ${booking.guestInfo?.name || 'Guest'}`,
+                            guestInfo: {
+                                name: booking.guestInfo?.name || 'Guest',
+                                email: booking.guestInfo?.email || '',
+                                phone: booking.guestInfo?.phone || '',
+                                message: booking.guestInfo?.message || ''
+                            },
+                            googleMeetJoinUrl: booking.googleMeetJoinUrl || null,
+                            googleMeetHtmlLink: booking.googleMeetHtmlLink || null,
+                            googleMeetId: booking.googleMeetId || null,
+                            duration: booking.duration || 30,
+                            timezone: booking.timezone || 'UTC'
+                        };
+                    });
+
+                    setRecentBookings(mappedBookings);
+                    console.log('Fallback recent bookings loaded successfully:', mappedBookings);
+                } else {
+                    console.warn('No bookings found in fallback response:', response);
+                    setRecentBookings([]);
+                }
             } else {
-                console.warn('No bookings found in response:', response);
+                console.warn('No meeting types available for fallback method');
                 setRecentBookings([]);
             }
         } catch (error) {
             console.error('Failed to load recent bookings:', error);
             setRecentBookings([]);
-            if (error.message.includes('Session expired')) {
-                setError(error.message);
-                navigate('/login');
+            if (error.message.includes('Session expired') || error.message.includes('authentication')) {
+                setError('Session expired. Please log in again.');
+                // Don't auto-navigate to login from dashboard as user might want to refresh
             } else {
                 setError('Failed to load recent bookings');
             }
         } finally {
             setBookingsLoading(false);
         }
-    }, [meetingTypes, navigate]);
+    }, [meetingTypes]);
 
     // Update useEffect to load bookings when meetingTypes change
     useEffect(() => {
@@ -1921,39 +1991,341 @@ const Dashboard = () => {
                         height: auto;
                     }
                 }
+
+                /* Enhanced Professional Footer */
+                .enhanced-footer {
+                    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+                    color: #e2e8f0;
+                    position: relative;
+                    overflow: hidden;
+                    padding: 4rem 0 2rem;
+                    margin-top: 4rem;
+                }
+
+                .footer-background {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    z-index: 0;
+                }
+
+                .footer-pattern {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-image: 
+                        radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+                    background-size: 20px 20px;
+                    animation: float 20s ease-in-out infinite;
+                }
+
+                .footer-glow {
+                    position: absolute;
+                    top: -50%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 200%;
+                    height: 100%;
+                    background: radial-gradient(
+                        ellipse at center,
+                        rgba(99, 102, 241, 0.1) 0%,
+                        transparent 70%
+                    );
+                    animation: pulse 4s ease-in-out infinite;
+                }
+
+                .footer-main {
+                    position: relative;
+                    z-index: 1;
+                    padding: 2rem 0;
+                }
+
+                .footer-brand-section {
+                    text-align: center;
+                }
+
+                .brand-container {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 1.5rem;
+                }
+
+                .brand-icon-footer {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 1rem;
+                    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+                }
+
+                .brand-name-footer {
+                    color: #f7fafc;
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    margin: 0;
+                    background: linear-gradient(135deg, #f7fafc 0%, #cbd5e0 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+
+                .brand-description {
+                    color: #a0aec0;
+                    font-size: 0.95rem;
+                    line-height: 1.6;
+                    margin-bottom: 2rem;
+                    max-width: 400px;
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+
+                .footer-section-title {
+                    color: #f7fafc;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    margin-bottom: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    position: relative;
+                }
+
+                .footer-section-title::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -5px;
+                    left: 0;
+                    width: 30px;
+                    height: 2px;
+                    background: linear-gradient(90deg, #667eea, #764ba2);
+                    border-radius: 1px;
+                }
+
+                .footer-nav-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    text-align: center;
+                }
+
+                .footer-nav-list li {
+                    margin-bottom: 0.75rem;
+                }
+
+                .footer-nav-link {
+                    color: #a0aec0;
+                    text-decoration: none;
+                    font-size: 0.9rem;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    padding: 0.5rem 1rem;
+                    border-radius: 6px;
+                    display: inline-block;
+                }
+
+                .footer-nav-link:hover {
+                    color: #667eea;
+                    background: rgba(102, 126, 234, 0.1);
+                    transform: translateY(-2px);
+                }
+
+                .footer-divider-enhanced {
+                    position: relative;
+                    margin: 3rem 0 2rem;
+                    height: 1px;
+                    background: rgba(160, 174, 192, 0.2);
+                    overflow: hidden;
+                }
+
+                .divider-line {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 1px;
+                    background: linear-gradient(
+                        90deg,
+                        transparent 0%,
+                        rgba(102, 126, 234, 0.5) 50%,
+                        transparent 100%
+                    );
+                }
+
+                .divider-glow {
+                    position: absolute;
+                    top: -2px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 100px;
+                    height: 5px;
+                    background: radial-gradient(
+                        ellipse,
+                        rgba(102, 126, 234, 0.6) 0%,
+                        transparent 70%
+                    );
+                    border-radius: 50%;
+                }
+
+                .footer-bottom {
+                    position: relative;
+                    z-index: 1;
+                    padding-top: 2rem;
+                }
+
+                .copyright-text {
+                    color: #718096;
+                    font-size: 0.85rem;
+                    margin: 0;
+                    line-height: 1.6;
+                }
+
+                .brand-highlight {
+                    color: #667eea;
+                    font-weight: 600;
+                }
+
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px) rotate(0deg); }
+                    33% { transform: translateY(-10px) rotate(1deg); }
+                    66% { transform: translateY(5px) rotate(-1deg); }
+                }
+
+                @keyframes pulse {
+                    0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+                    50% { opacity: 0.8; transform: translateX(-50%) scale(1.05); }
+                }
             `}</style>
 
-            {/* Footer */}
-            <footer className="mt-5 py-4 bg-light border-top">
-                <Container>
-                    <Row className="align-items-center">
-                        <Col md={6}>
-                            <div className="d-flex align-items-center">
-                                <FiCalendar className="me-2 text-primary" size={20} />
-                                <span className="fw-bold text-primary">meetslot.ai</span>
-                                <span className="text-muted ms-2">© 2025</span>
-                            </div>
+            {/* Enhanced Professional Footer */}
+            <footer className="enhanced-footer">
+                <div className="footer-background">
+                    <div className="footer-pattern"></div>
+                    <div className="footer-glow"></div>
+                </div>
+
+                <Container className="position-relative">
+                    {/* Main Footer Content */}
+                    <Row className="footer-main justify-content-center">
+                        <Col lg={4} md={6} className="mb-4 text-center">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8 }}
+                                viewport={{ once: true }}
+                                className="footer-brand-section"
+                            >
+                                <div className="brand-container mb-4 justify-content-center">
+                                    <motion.div
+                                        className="brand-icon-footer"
+                                        animate={{
+                                            rotate: [0, 5, -5, 0],
+                                            scale: [1, 1.05, 1]
+                                        }}
+                                        transition={{
+                                            duration: 4,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                    >
+                                        <FiCalendar size={28} />
+                                    </motion.div>
+                                    <h4 className="brand-name-footer">meetslot.ai</h4>
+                                </div>
+
+                                <p className="brand-description">
+                                    Making scheduling simple and efficient for everyone.
+                                </p>
+                            </motion.div>
                         </Col>
-                        <Col md={6} className="text-md-end mt-3 mt-md-0">
-                            <div className="d-flex justify-content-md-end justify-content-start gap-4">
-                                <span className="text-muted text-decoration-none small" style={{ cursor: 'pointer' }}>
-                                    Privacy Policy
-                                </span>
-                                <span className="text-muted text-decoration-none small" style={{ cursor: 'pointer' }}>
-                                    Terms of Service
-                                </span>
-                                <span className="text-muted text-decoration-none small" style={{ cursor: 'pointer' }}>
-                                    Support
-                                </span>
-                            </div>
+
+                        <Col lg={6} md={6} className="mb-4">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.2 }}
+                                viewport={{ once: true }}
+                                className="text-center"
+                            >
+                                <h6 className="footer-section-title justify-content-center">
+                                    <FiUsers className="me-2" />
+                                    Legal & Support
+                                </h6>
+                                <ul className="footer-nav-list">
+                                    {[
+                                        { name: "Privacy Policy", href: "/privacy-policy", external: true },
+                                        { name: "Terms of Service", href: "/terms-of-service", external: true },
+                                        { name: "Support Center", href: "/support", external: true }
+                                    ].map((item, index) => (
+                                        <motion.li
+                                            key={index}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            whileInView={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 * index }}
+                                            viewport={{ once: true }}
+                                            className="d-inline-block mx-3"
+                                        >
+                                            <motion.a
+                                                href={item.href}
+                                                className="footer-nav-link"
+                                                target={item.external ? "_blank" : "_self"}
+                                                rel={item.external ? "noopener noreferrer" : ""}
+                                                whileHover={{ x: 5, color: "#667eea" }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                {item.name}
+                                                {item.external && <FiUsers className="ms-1" size={12} />}
+                                            </motion.a>
+                                        </motion.li>
+                                    ))}
+                                </ul>
+                            </motion.div>
                         </Col>
                     </Row>
-                    <Row className="mt-3">
-                        <Col>
-                            <hr className="my-2" />
-                            <p className="text-center text-muted small mb-0">
-                                Making scheduling simple and efficient for everyone.
-                            </p>
+
+                    {/* Animated Divider */}
+                    <motion.div
+                        className="footer-divider-enhanced"
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: 1 }}
+                        transition={{ duration: 1.2 }}
+                        viewport={{ once: true }}
+                    >
+                        <div className="divider-line"></div>
+                        <motion.div
+                            className="divider-glow"
+                            animate={{
+                                opacity: [0.5, 1, 0.5],
+                                scale: [1, 1.1, 1]
+                            }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        />
+                    </motion.div>
+
+                    {/* Bottom Footer */}
+                    <Row className="footer-bottom align-items-center">
+                        <Col className="text-center">
+                            <motion.p
+                                className="copyright-text"
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
+                                transition={{ duration: 0.8, delay: 0.5 }}
+                                viewport={{ once: true }}
+                            >
+                                © 2024 <span className="brand-highlight">meetslot.ai</span>.
+                                All rights reserved.
+                            </motion.p>
                         </Col>
                     </Row>
                 </Container>

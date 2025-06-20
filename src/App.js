@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import './styles/theme.css';
@@ -18,6 +18,9 @@ import SignUp from './pages/SignUp';
 import EditMeetingType from './pages/EditMeetingType';
 import LandingPage from './pages/LandingPage';
 import PublicScheduling from './pages/PublicScheduling';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import Support from './pages/Support';
 
 // Custom Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -61,6 +64,9 @@ const AppRoutes = () => {
                 {/* Public Routes */}
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/landing" element={<LandingPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/support" element={<Support />} />
                 <Route path="/login" element={
                     <PublicRoute>
                         <Login />
@@ -84,6 +90,11 @@ const AppRoutes = () => {
                 <Route path="/meetings" element={
                     <ProtectedRoute>
                         <Meetings />
+                    </ProtectedRoute>
+                } />
+                <Route path="/events" element={
+                    <ProtectedRoute>
+                        <Calendar />
                     </ProtectedRoute>
                 } />
                 <Route path="/calendar" element={

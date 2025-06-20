@@ -74,44 +74,44 @@ const LandingPage = () => {
         }
     ];
 
- const testimonials = [
-    {
-        name: "Praveen Andapalli",
-        role: "CEO",
-        company: "Vitel Global & Varun Digital Media",
-        image: "https://imageio.forbes.com/specials-images/imageserve/65ccd50c4de75918d26599cc/0x0.jpg?format=jpg&crop=813,812,x108,y0,safe&width=300",
-        rating: 5,
-        text: "meetslot.ai revolutionized how we manage internal communications and scheduling. As a leader in both telecom and digital media, I value its precision and ease of use.",
-        metric: "Leadership-driven efficiency"
-    },
-    {
-        name: "Ambati Sridhar",
-        role: "Director",
-        company: "VitelGlobal Communications Pvt Ltd",
-        image: "https://bharatpayroll.s3.amazonaws.com/public/pss_bharatpayroll_db/employee_images/Sridhar_Sir_9jfm2u3y5q.PNG",
-        rating: 5,
-        text: "Our organization relies on meetslot.ai to coordinate high-level meetings. The smart automation and reliable calendar integrations have boosted our productivity.",
-        metric: "Improved scheduling efficiency"
-    },
-    {
-        name: "Shatru Naik",
-        role: "AI ML Products | Delivery | Strategy",
-        company: "Pranthsis",
-        image: "https://media.licdn.com/dms/image/v2/D5603AQGFfRgUGks88Q/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1707503275609?e=1755734400&v=beta&t=g6EgQiCZnz9YqsfzaX2e3ktG9ivyZ04gnSGboGWo-Fw",
-        rating: 5,
-        text: "As CTO of Pranthsis, I trust meetslot.ai for all our client demos and internal syncs. Reliable, secure, and easy to use.",
-        metric: "Trusted by tech leaders"
-    },
-    {
-        name: "Mukesh Yadav",
-        role: "Managing Director",
-        company: "VitelGlobal Communications",
-        image: "https://media.licdn.com/dms/image/v2/D4E03AQGIw2cZ8K9tFw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1704472166673?e=1755734400&v=beta&t=AGsoeQNYgSGFcTioppkbn0i7LrEQ6MwK9chZjaOXd9U", // use appropriate image URL
-        rating: 5,
-        text: "As Managing Director, I count on meetslot.ai for seamless communication across departments. It brings structure, speed, and simplicity to our day-to-day operations.",
-        metric: "Seamless team collaboration"
-    }
-];
+    const testimonials = [
+        {
+            name: "Praveen Andapalli",
+            role: "CEO",
+            company: "Vitel Global & Varun Digital Media",
+            image: "https://imageio.forbes.com/specials-images/imageserve/65ccd50c4de75918d26599cc/0x0.jpg?format=jpg&crop=813,812,x108,y0,safe&width=300",
+            rating: 5,
+            text: "meetslot.ai revolutionized how we manage internal communications and scheduling. As a leader in both telecom and digital media, I value its precision and ease of use.",
+            metric: "Leadership-driven efficiency"
+        },
+        {
+            name: "Ambati Sridhar",
+            role: "Director",
+            company: "VitelGlobal Communications Pvt Ltd",
+            image: "https://bharatpayroll.s3.amazonaws.com/public/pss_bharatpayroll_db/employee_images/Sridhar_Sir_9jfm2u3y5q.PNG",
+            rating: 5,
+            text: "Our organization relies on meetslot.ai to coordinate high-level meetings. The smart automation and reliable calendar integrations have boosted our productivity.",
+            metric: "Improved scheduling efficiency"
+        },
+        {
+            name: "Shatru Naik",
+            role: "AI ML Products | Delivery | Strategy",
+            company: "Pranthsis",
+            image: "https://media.licdn.com/dms/image/v2/D5603AQGFfRgUGks88Q/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1707503275609?e=1755734400&v=beta&t=g6EgQiCZnz9YqsfzaX2e3ktG9ivyZ04gnSGboGWo-Fw",
+            rating: 5,
+            text: "As CTO of Pranthsis, I trust meetslot.ai for all our client demos and internal syncs. Reliable, secure, and easy to use.",
+            metric: "Trusted by tech leaders"
+        },
+        {
+            name: "Mukesh Yadav",
+            role: "Managing Director",
+            company: "VitelGlobal Communications",
+            image: "https://media.licdn.com/dms/image/v2/D4E03AQGIw2cZ8K9tFw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1704472166673?e=1755734400&v=beta&t=AGsoeQNYgSGFcTioppkbn0i7LrEQ6MwK9chZjaOXd9U", // use appropriate image URL
+            rating: 5,
+            text: "As Managing Director, I count on meetslot.ai for seamless communication across departments. It brings structure, speed, and simplicity to our day-to-day operations.",
+            metric: "Seamless team collaboration"
+        }
+    ];
 
 
     const pricingPlans = [
@@ -802,97 +802,324 @@ const LandingPage = () => {
                 </Container>
             </section>
 
-            {/* Footer */}
-            <footer className="footer-section">
-                <Container>
-                    <Row>
-                        <Col md={6} lg={4} className="mb-4">
-                            <div className="footer-brand mb-4">
-                                <FiCalendar size={32} className="me-3" />
-                                <h5 className="brand-name mb-0">meetslot.ai</h5>
-                            </div>
-                            <p className="footer-description mb-4">
-                                The most intuitive AI-powered scheduling platform that helps professionals and teams
-                                manage their time effectively with intelligent automation.
-                            </p>
-                            <div className="social-links">
-                                <Button className="social-link">
-                                    <FiMail />
-                                </Button>
-                                <Button className="social-link">
-                                    <FiGlobe />
-                                </Button>
-                                <Button className="social-link">
-                                    <FiSmartphone />
-                                </Button>
-                            </div>
+            {/* Enhanced Professional Footer */}
+            <footer className="enhanced-footer">
+                <div className="footer-background">
+                    <div className="footer-pattern"></div>
+                    <div className="footer-glow"></div>
+                </div>
+
+                <Container className="position-relative">
+                    {/* Main Footer Content */}
+                    <Row className="footer-main">
+                        <Col lg={4} md={6} className="mb-5">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8 }}
+                                viewport={{ once: true }}
+                                className="footer-brand-section"
+                            >
+                                <div className="brand-container mb-4">
+                                    <motion.div
+                                        className="brand-icon-footer"
+                                        animate={{
+                                            rotate: [0, 5, -5, 0],
+                                            scale: [1, 1.05, 1]
+                                        }}
+                                        transition={{
+                                            duration: 4,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                    >
+                                        <FiCalendar size={28} />
+                                    </motion.div>
+                                    <h4 className="brand-name-footer">meetslot.ai</h4>
+                                </div>
+
+                                <p className="brand-description">
+                                    The future of intelligent scheduling. Powered by AI to make your
+                                    meeting management effortless, efficient, and professional.
+                                </p>
+
+                                <div className="social-media-links">
+                                    {[
+                                        { icon: <FiMail />, label: "Email", color: "#ea4335" },
+                                        { icon: <FiGlobe />, label: "Website", color: "#4285f4" },
+                                        { icon: <FiSmartphone />, label: "Mobile", color: "#34a853" },
+                                        { icon: <FiMessageSquare />, label: "Chat", color: "#fbbc05" }
+                                    ].map((social, index) => (
+                                        <motion.button
+                                            key={index}
+                                            className="social-btn"
+                                            whileHover={{
+                                                scale: 1.1,
+                                                rotate: 5,
+                                                backgroundColor: social.color
+                                            }}
+                                            whileTap={{ scale: 0.95 }}
+                                            transition={{ duration: 0.2 }}
+                                            aria-label={social.label}
+                                        >
+                                            {social.icon}
+                                        </motion.button>
+                                    ))}
+                                </div>
+                            </motion.div>
                         </Col>
 
-                        <Col md={6} lg={2} className="mb-4">
-                            <h6 className="footer-title">Product</h6>
-                            <ul className="footer-links">
-                                <li><button type="button" className="footer-link-btn" aria-label="Features" aria-disabled="true">Features</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Pricing" aria-disabled="true">Pricing</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Integrations" aria-disabled="true">Integrations</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="API" aria-disabled="true">API</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Mobile Apps" aria-disabled="true">Mobile Apps</button></li>
-                            </ul>
+                        <Col lg={2} md={6} className="mb-5">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.1 }}
+                                viewport={{ once: true }}
+                            >
+                                <h6 className="footer-section-title">
+                                    <FiZap className="me-2" />
+                                    Product
+                                </h6>
+                                <ul className="footer-nav-list">
+                                    {[
+                                        { name: "Features", href: "#features" },
+                                        { name: "Pricing", href: "#pricing" },
+                                        { name: "Integrations", href: "#" },
+                                        { name: "API", href: "#" },
+                                        { name: "Mobile Apps", href: "#" }
+                                    ].map((item, index) => (
+                                        <motion.li
+                                            key={index}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            whileInView={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 * index }}
+                                            viewport={{ once: true }}
+                                        >
+                                            <motion.a
+                                                href={item.href}
+                                                className="footer-nav-link"
+                                                whileHover={{ x: 5, color: "#667eea" }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                {item.name}
+                                            </motion.a>
+                                        </motion.li>
+                                    ))}
+                                </ul>
+                            </motion.div>
                         </Col>
 
-                        <Col md={6} lg={2} className="mb-4">
-                            <h6 className="footer-title">Company</h6>
-                            <ul className="footer-links">
-                                <li><button type="button" className="footer-link-btn" aria-label="About Us" aria-disabled="true">About Us</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Blog" aria-disabled="true">Blog</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Careers" aria-disabled="true">Careers</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Press" aria-disabled="true">Press</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Contact" onClick={handleContactSales}>Contact</button></li>
-                            </ul>
+                        <Col lg={2} md={6} className="mb-5">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.2 }}
+                                viewport={{ once: true }}
+                            >
+                                <h6 className="footer-section-title">
+                                    <FiUsers className="me-2" />
+                                    Company
+                                </h6>
+                                <ul className="footer-nav-list">
+                                    {[
+                                        { name: "About Us", href: "#" },
+                                        { name: "Blog", href: "#" },
+                                        { name: "Careers", href: "#" },
+                                        { name: "Press", href: "#" },
+                                        { name: "Contact", action: () => handleContactSales() }
+                                    ].map((item, index) => (
+                                        <motion.li
+                                            key={index}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            whileInView={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 * index }}
+                                            viewport={{ once: true }}
+                                        >
+                                            {item.action ? (
+                                                <motion.button
+                                                    className="footer-nav-link footer-nav-button"
+                                                    onClick={item.action}
+                                                    whileHover={{ x: 5, color: "#667eea" }}
+                                                    transition={{ duration: 0.2 }}
+                                                >
+                                                    {item.name}
+                                                </motion.button>
+                                            ) : (
+                                                <motion.a
+                                                    href={item.href}
+                                                    className="footer-nav-link"
+                                                    whileHover={{ x: 5, color: "#667eea" }}
+                                                    transition={{ duration: 0.2 }}
+                                                >
+                                                    {item.name}
+                                                </motion.a>
+                                            )}
+                                        </motion.li>
+                                    ))}
+                                </ul>
+                            </motion.div>
                         </Col>
 
-                        <Col md={6} lg={2} className="mb-4">
-                            <h6 className="footer-title">Support</h6>
-                            <ul className="footer-links">
-                                <li><button type="button" className="footer-link-btn" aria-label="Help Center" aria-disabled="true">Help Center</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Documentation" aria-disabled="true">Documentation</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Status Page" aria-disabled="true">Status Page</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Community" aria-disabled="true">Community</button></li>
-                                <li><button type="button" className="footer-link-btn" aria-label="Security" aria-disabled="true">Security</button></li>
-                            </ul>
+                        <Col lg={2} md={6} className="mb-5">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.3 }}
+                                viewport={{ once: true }}
+                            >
+                                <h6 className="footer-section-title">
+                                    <FiShield className="me-2" />
+                                    Legal & Support
+                                </h6>
+                                <ul className="footer-nav-list">
+                                    {[
+                                        { name: "Privacy Policy", href: "/privacy-policy", external: true },
+                                        { name: "Terms of Service", href: "/terms-of-service", external: true },
+                                        { name: "Support Center", href: "/support", external: true },
+                                        { name: "Documentation", href: "#" },
+                                        { name: "Security", href: "#" }
+                                    ].map((item, index) => (
+                                        <motion.li
+                                            key={index}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            whileInView={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 * index }}
+                                            viewport={{ once: true }}
+                                        >
+                                            <motion.a
+                                                href={item.href}
+                                                className="footer-nav-link"
+                                                target={item.external ? "_blank" : "_self"}
+                                                rel={item.external ? "noopener noreferrer" : ""}
+                                                whileHover={{ x: 5, color: "#667eea" }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                {item.name}
+                                                {item.external && <FiArrowRight className="ms-1" size={12} />}
+                                            </motion.a>
+                                        </motion.li>
+                                    ))}
+                                </ul>
+                            </motion.div>
                         </Col>
 
-                        <Col md={6} lg={2} className="mb-4">
-                            <h6 className="footer-title">Newsletter</h6>
-                            <p className="newsletter-text mb-3">
-                                Get the latest updates and productivity tips.
-                            </p>
-                            <Form className="newsletter-form">
-                                <Form.Control
-                                    type="email"
-                                    placeholder="Enter email"
-                                    className="newsletter-input mb-2"
-                                />
-                                <Button className="newsletter-button w-100">
-                                    Subscribe
-                                </Button>
-                            </Form>
+                        <Col lg={2} className="mb-5">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.4 }}
+                                viewport={{ once: true }}
+                            >
+                                <h6 className="footer-section-title">
+                                    <FiMail className="me-2" />
+                                    Stay Updated
+                                </h6>
+                                <p className="newsletter-description">
+                                    Get the latest features and productivity tips delivered to your inbox.
+                                </p>
+
+                                <motion.div
+                                    className="newsletter-form-container"
+                                    whileHover={{ scale: 1.02 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <Form className="newsletter-form-enhanced">
+                                        <div className="input-group-enhanced">
+                                            <Form.Control
+                                                type="email"
+                                                placeholder="Enter your email"
+                                                className="newsletter-input-enhanced"
+                                            />
+                                            <motion.button
+                                                type="submit"
+                                                className="newsletter-btn-enhanced"
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                <FiArrowRight />
+                                            </motion.button>
+                                        </div>
+                                    </Form>
+
+                                    <div className="newsletter-benefits">
+                                        <small className="benefit-item">
+                                            <FiCheck className="me-1" />
+                                            Weekly productivity tips
+                                        </small>
+                                        <small className="benefit-item">
+                                            <FiCheck className="me-1" />
+                                            Feature updates & releases
+                                        </small>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
                         </Col>
                     </Row>
 
-                    <hr className="footer-divider" />
+                    {/* Animated Divider */}
+                    <motion.div
+                        className="footer-divider-enhanced"
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: 1 }}
+                        transition={{ duration: 1.2 }}
+                        viewport={{ once: true }}
+                    >
+                        <div className="divider-line"></div>
+                        <motion.div
+                            className="divider-glow"
+                            animate={{
+                                opacity: [0.5, 1, 0.5],
+                                scale: [1, 1.1, 1]
+                            }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        />
+                    </motion.div>
 
-                    <Row className="align-items-center">
-                        <Col md={6}>
-                            <p className="copyright">
-                                © 2024 meetslot.ai. All rights reserved.
-                            </p>
+                    {/* Bottom Footer */}
+                    <Row className="footer-bottom align-items-center">
+                        <Col md={6} className="text-center text-md-start">
+                            <motion.p
+                                className="copyright-text"
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
+                                transition={{ duration: 0.8, delay: 0.5 }}
+                                viewport={{ once: true }}
+                            >
+                                © 2024 <span className="brand-highlight">meetslot.ai</span>.
+                                All rights reserved. Made with <FiHeart className="heart-icon" /> for productivity.
+                            </motion.p>
                         </Col>
-                        <Col md={6} className="text-md-end">
-                            <div className="legal-links">
-                                <button type="button" className="footer-link-btn" aria-label="Privacy Policy" aria-disabled="true">Privacy Policy</button>
-                                <button type="button" className="footer-link-btn" aria-label="Terms of Service" aria-disabled="true">Terms of Service</button>
-                                <button type="button" className="footer-link-btn" aria-label="Cookie Policy" aria-disabled="true">Cookie Policy</button>
-                            </div>
+
+                        <Col md={6} className="text-center text-md-end">
+                            <motion.div
+                                className="footer-badges"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, delay: 0.6 }}
+                                viewport={{ once: true }}
+                            >
+                                <motion.div
+                                    className="security-badge"
+                                    whileHover={{ scale: 1.05 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <FiShield className="me-1" />
+                                    <span>SOC 2 Compliant</span>
+                                </motion.div>
+
+                                <motion.div
+                                    className="uptime-badge"
+                                    whileHover={{ scale: 1.05 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <FiZap className="me-1" />
+                                    <span>99.9% Uptime</span>
+                                </motion.div>
+                            </motion.div>
                         </Col>
                     </Row>
                 </Container>
@@ -2120,6 +2347,384 @@ const LandingPage = () => {
                 }
 
                 /* Responsive Design */
+                /* Enhanced Professional Footer */
+                .enhanced-footer {
+                    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+                    color: #e2e8f0;
+                    position: relative;
+                    overflow: hidden;
+                    padding: 6rem 0 2rem;
+                }
+
+                .footer-background {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    opacity: 0.1;
+                }
+
+                .footer-pattern {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-image: 
+                        radial-gradient(circle at 25% 25%, rgba(103, 126, 234, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 75% 75%, rgba(240, 147, 251, 0.1) 0%, transparent 50%);
+                    animation: patternFloat 20s ease-in-out infinite;
+                }
+
+                .footer-glow {
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    right: -50%;
+                    bottom: -50%;
+                    background: radial-gradient(circle, rgba(103, 126, 234, 0.03) 0%, transparent 70%);
+                    animation: glowPulse 8s ease-in-out infinite;
+                }
+
+                @keyframes patternFloat {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    50% { transform: translate(-10px, -10px) scale(1.05); }
+                }
+
+                @keyframes glowPulse {
+                    0%, 100% { opacity: 0.3; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.1); }
+                }
+
+                .footer-main {
+                    position: relative;
+                    z-index: 2;
+                }
+
+                .footer-brand-section {
+                    padding-right: 2rem;
+                }
+
+                .brand-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+
+                .brand-icon-footer {
+                    width: 60px;
+                    height: 60px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 15px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    box-shadow: 0 10px 30px rgba(103, 126, 234, 0.3);
+                }
+
+                .brand-name-footer {
+                    font-size: 2rem;
+                    font-weight: 800;
+                    color: white;
+                    margin: 0;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+
+                .brand-description {
+                    color: #a0aec0;
+                    line-height: 1.6;
+                    font-size: 1rem;
+                    margin-bottom: 2rem;
+                }
+
+                .social-media-links {
+                    display: flex;
+                    gap: 1rem;
+                }
+
+                .social-btn {
+                    width: 45px;
+                    height: 45px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #e2e8f0;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
+                }
+
+                .social-btn:hover {
+                    color: white;
+                    border-color: rgba(255, 255, 255, 0.3);
+                    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+                }
+
+                .footer-section-title {
+                    color: white;
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    margin-bottom: 2rem;
+                    display: flex;
+                    align-items: center;
+                    position: relative;
+                }
+
+                .footer-section-title::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -8px;
+                    left: 0;
+                    width: 30px;
+                    height: 2px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 1px;
+                }
+
+                .footer-nav-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .footer-nav-list li {
+                    margin-bottom: 1rem;
+                }
+
+                .footer-nav-link {
+                    color: #a0aec0;
+                    text-decoration: none;
+                    font-size: 0.95rem;
+                    display: flex;
+                    align-items: center;
+                    transition: all 0.3s ease;
+                    position: relative;
+                }
+
+                .footer-nav-button {
+                    background: none;
+                    border: none;
+                    padding: 0;
+                    text-align: left;
+                    font-family: inherit;
+                    font-size: inherit;
+                    cursor: pointer;
+                }
+
+                .footer-nav-link:hover {
+                    color: white;
+                    text-decoration: none;
+                }
+
+                .newsletter-description {
+                    color: #a0aec0;
+                    font-size: 0.9rem;
+                    line-height: 1.5;
+                    margin-bottom: 1.5rem;
+                }
+
+                .newsletter-form-container {
+                    background: rgba(255, 255, 255, 0.03);
+                    border-radius: 15px;
+                    padding: 1.5rem;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(10px);
+                }
+
+                .newsletter-form-enhanced {
+                    margin-bottom: 1rem;
+                }
+
+                .input-group-enhanced {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                }
+
+                .newsletter-input-enhanced {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    color: white;
+                    padding: 12px 50px 12px 15px;
+                    font-size: 0.9rem;
+                    flex: 1;
+                    transition: all 0.3s ease;
+                }
+
+                .newsletter-input-enhanced::placeholder {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+
+                .newsletter-input-enhanced:focus {
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: #667eea;
+                    outline: none;
+                    box-shadow: 0 0 0 3px rgba(103, 126, 234, 0.1);
+                    color: white;
+                }
+
+                .newsletter-btn-enhanced {
+                    position: absolute;
+                    right: 5px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 35px;
+                    height: 35px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border: none;
+                    border-radius: 8px;
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                }
+
+                .newsletter-btn-enhanced:hover {
+                    box-shadow: 0 5px 15px rgba(103, 126, 234, 0.4);
+                }
+
+                .newsletter-benefits {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+
+                .benefit-item {
+                    color: #a0aec0;
+                    display: flex;
+                    align-items: center;
+                    font-size: 0.8rem;
+                }
+
+                .footer-divider-enhanced {
+                    margin: 3rem 0;
+                    position: relative;
+                    height: 1px;
+                    overflow: hidden;
+                }
+
+                .divider-line {
+                    width: 100%;
+                    height: 1px;
+                    background: linear-gradient(90deg, 
+                        transparent 0%, 
+                        rgba(255, 255, 255, 0.1) 25%, 
+                        rgba(103, 126, 234, 0.3) 50%, 
+                        rgba(255, 255, 255, 0.1) 75%, 
+                        transparent 100%
+                    );
+                }
+
+                .divider-glow {
+                    position: absolute;
+                    top: -5px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 100px;
+                    height: 10px;
+                    background: radial-gradient(ellipse, rgba(103, 126, 234, 0.4) 0%, transparent 70%);
+                    border-radius: 50%;
+                }
+
+                .footer-bottom {
+                    position: relative;
+                    z-index: 2;
+                    padding-top: 2rem;
+                }
+
+                .copyright-text {
+                    color: #a0aec0;
+                    margin: 0;
+                    font-size: 0.9rem;
+                }
+
+                .brand-highlight {
+                    color: white;
+                    font-weight: 600;
+                }
+
+                .heart-icon {
+                    color: #f56565;
+                    animation: heartbeat 2s ease-in-out infinite;
+                }
+
+                @keyframes heartbeat {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.1); }
+                }
+
+                .footer-badges {
+                    display: flex;
+                    gap: 1rem;
+                    justify-content: flex-end;
+                    flex-wrap: wrap;
+                }
+
+                .security-badge,
+                .uptime-badge {
+                    display: flex;
+                    align-items: center;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    padding: 0.5rem 1rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    color: #e2e8f0;
+                    backdrop-filter: blur(10px);
+                    transition: all 0.3s ease;
+                }
+
+                .security-badge:hover,
+                .uptime-badge:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.2);
+                }
+
+                /* Footer Responsive Design */
+                @media (max-width: 768px) {
+                    .enhanced-footer {
+                        padding: 4rem 0 2rem;
+                    }
+                    
+                    .footer-brand-section {
+                        padding-right: 0;
+                        margin-bottom: 3rem;
+                    }
+                    
+                    .brand-container {
+                        justify-content: center;
+                        text-align: center;
+                    }
+                    
+                    .footer-section-title {
+                        justify-content: center;
+                        text-align: center;
+                    }
+                    
+                    .footer-nav-list {
+                        text-align: center;
+                    }
+                    
+                    .footer-badges {
+                        justify-content: center;
+                        margin-top: 1rem;
+                    }
+                    
+                    .social-media-links {
+                        justify-content: center;
+                    }
+                }
+
                 @media (max-width: 768px) {
                     .hero-title {
                         font-size: 2.5rem;
@@ -2156,11 +2761,6 @@ const LandingPage = () => {
                     
                     .stat-number {
                         font-size: 2rem;
-                    }
-                    
-                    .legal-links {
-                        justify-content: center;
-                        margin-top: 1rem;
                     }
                 }
 

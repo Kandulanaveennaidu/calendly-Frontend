@@ -18,6 +18,15 @@ class AuthService {
         const data = await response.json();
 
         if (!response.ok) {
+            if (response.status === 429) {
+                throw new Error(data.message || 'Too many registration attempts. Please try again later.');
+            }
+            if (response.status === 400) {
+                throw new Error(data.message || 'Please check your input and try again.');
+            }
+            if (response.status === 409) {
+                throw new Error(data.message || 'An account with this email already exists.');
+            }
             throw new Error(data.message || 'Registration failed');
         }
 
@@ -29,21 +38,34 @@ class AuthService {
             localStorage.setItem('refreshToken', data.refreshToken);
         }
 
-        return data;
-    }
+        // Store user data
+        if (data.user) {
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+        }
 
-    async login(email, password) {
+        return data;
+    } async login(email, password, rememberMe = false) {
         const response = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, password, rememberMe }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
+            // Handle specific error cases
+            if (response.status === 429) {
+                throw new Error(data.message || 'Too many login attempts. Please try again later.');
+            }
+            if (response.status === 423) {
+                throw new Error(data.message || 'Account is locked due to multiple failed attempts. Please reset your password or try again later.');
+            }
+            if (response.status === 401) {
+                throw new Error(data.message || 'Invalid email or password.');
+            }
             throw new Error(data.message || 'Login failed');
         }
 
@@ -55,10 +77,13 @@ class AuthService {
             localStorage.setItem('refreshToken', data.refreshToken);
         }
 
-        return data;
-    }
+        // Store user data
+        if (data.user) {
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+        }
 
-    async forgotPassword(email) {
+        return data;
+    } async forgotPassword(email) {
         const response = await fetch(`${API_BASE_URL}/forgot-password`, {
             method: 'POST',
             headers: {
@@ -70,24 +95,51 @@ class AuthService {
         const data = await response.json();
 
         if (!response.ok) {
+            if (response.status === 429) {
+                throw new Error(data.message || 'Too many password reset requests. Please try again later.');
+            }
             throw new Error(data.message || 'Failed to send reset email');
         }
 
         return data;
     }
 
-    async resetPassword(code, newPassword) {
-        const response = await fetch(`${API_BASE_URL}/reset-password`, {
+    async verifyResetCode(email, code) {
+        const response = await fetch(`${API_BASE_URL}/verify-reset-code`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ code, newPassword }),
+            body: JSON.stringify({ email, code }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
+            if (response.status === 400) {
+                throw new Error(data.message || 'Invalid or expired reset code.');
+            }
+            throw new Error(data.message || 'Failed to verify reset code');
+        }
+
+        return data;
+    }
+
+    async resetPassword(email, code, newPassword) {
+        const response = await fetch(`${API_BASE_URL}/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, code, newPassword }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            if (response.status === 400) {
+                throw new Error(data.message || 'Invalid or expired reset code.');
+            }
             throw new Error(data.message || 'Failed to reset password');
         }
 
@@ -259,13 +311,31 @@ class AuthService {
             } catch (error) {
                 console.error('Logout API call failed:', error);
             }
-        }
-
-        // Clear tokens regardless of API call success
+        }        // Clear tokens regardless of API call success
         localStorage.removeItem('authToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('currentUser');
     }
+
+    // Utility methods
+    isAuthenticated() {
+        return !!localStorage.getItem('authToken');
+    }
+
+    getToken() {
+        return localStorage.getItem('authToken');
+    }
+
+    getCurrentUserFromStorage() {
+        const userStr = localStorage.getItem('currentUser');
+        return userStr ? JSON.parse(userStr) : null;
+    }
+
+    isEmailVerified() {
+        const user = this.getCurrentUserFromStorage();
+        return user?.emailVerified || false;
+    }
 }
 
-export default new AuthService();
+const authService = new AuthService();
+export default authService;
