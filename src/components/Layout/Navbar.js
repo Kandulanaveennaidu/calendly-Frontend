@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Navbar, Nav, Container, Button, Dropdown, Modal, Form } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { FiCalendar, FiUser, FiMenu, FiBell, FiLogOut } from 'react-icons/fi';
+import { FiCalendar, FiUser, FiMenu, FiBell, FiLogOut, FiSettings } from 'react-icons/fi';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import meetingService from '../../services/meetingService';
@@ -75,16 +75,6 @@ const CustomNavbar = () => {
             );
         } catch (error) {
             console.error('Failed to mark notification as read:', error);
-        }
-    };
-
-    // Mark all notifications as read
-    const markAllAsRead = async () => {
-        try {
-            await notificationService.markAllAsRead();
-            setNotifications(prev => prev.map(notif => ({ ...notif, isRead: true })));
-        } catch (error) {
-            console.error('Failed to mark all notifications as read:', error);
         }
     };
 
@@ -422,24 +412,110 @@ const CustomNavbar = () => {
                                             </Dropdown.Menu>
                                         </Dropdown>
 
-                                        {/* User Dropdown */}
+                                        {/* Enhanced User Dropdown */}
                                         <Dropdown className="mx-2">
-                                            <Dropdown.Toggle variant="link" className="text-dark text-decoration-none">
-                                                <FiUser size={20} />
+                                            <Dropdown.Toggle
+                                                variant="link"
+                                                className="text-dark text-decoration-none user-dropdown-toggle p-2 rounded-circle"
+                                                style={{
+                                                    transition: 'all 0.2s ease',
+                                                    border: '2px solid transparent'
+                                                }}
+                                            >
+                                                <div
+                                                    className="d-flex align-items-center justify-content-center"
+                                                    style={{
+                                                        width: '36px',
+                                                        height: '36px',
+                                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                        borderRadius: '50%',
+                                                        color: 'white'
+                                                    }}
+                                                >
+                                                    <FiUser size={18} />
+                                                </div>
                                             </Dropdown.Toggle>
-                                            <Dropdown.Menu align="end">
-                                                {/* <Dropdown.Item as={Link} to="/profile">
-                                                    <FiUser className="me-2" />
-                                                    Profile
-                                                </Dropdown.Item> */}
-                                                {/* <Dropdown.Item as={Link} to="/settings">
-                                                    <FiSettings className="me-2" />
-                                                    Settings
-                                                </Dropdown.Item> */}
-                                                {/* <Dropdown.Divider /> */}
-                                                <Dropdown.Item onClick={handleLogout}>
-                                                    <FiLogOut className="me-2" />
-                                                    Logout
+                                            <Dropdown.Menu
+                                                align="end"
+                                                className="user-dropdown-menu shadow-lg border-0"
+                                                style={{
+                                                    borderRadius: '12px',
+                                                    padding: '8px',
+                                                    minWidth: '220px',
+                                                    marginTop: '8px'
+                                                }}
+                                            >
+                                                <div className="px-3 py-2 border-bottom">
+                                                    <small className="text-muted">Signed in as</small>
+                                                    <div className="fw-semibold text-truncate">
+                                                        {currentUser?.email || 'user@example.com'}
+                                                    </div>
+                                                </div>
+                                                <Dropdown.Item
+                                                    as={Link}
+                                                    to="/profile"
+                                                    className="user-dropdown-item d-flex align-items-center py-2"
+                                                >
+                                                    <div
+                                                        className="me-3 d-flex align-items-center justify-content-center"
+                                                        style={{
+                                                            width: '32px',
+                                                            height: '32px',
+                                                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                                            borderRadius: '8px',
+                                                            color: '#667eea'
+                                                        }}
+                                                    >
+                                                        <FiUser size={16} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="fw-medium">Profile</div>
+                                                        <small className="text-muted">Manage your account settings</small>
+                                                    </div>
+                                                </Dropdown.Item>
+                                                <Dropdown.Item
+                                                    as={Link}
+                                                    to="/settings"
+                                                    className="user-dropdown-item d-flex align-items-center py-2"
+                                                >
+                                                    <div
+                                                        className="me-3 d-flex align-items-center justify-content-center"
+                                                        style={{
+                                                            width: '32px',
+                                                            height: '32px',
+                                                            backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                                                            borderRadius: '8px',
+                                                            color: '#6c757d'
+                                                        }}
+                                                    >
+                                                        <FiSettings size={16} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="fw-medium">Settings</div>
+                                                        <small className="text-muted">Preferences & integrations</small>
+                                                    </div>
+                                                </Dropdown.Item>
+                                                <Dropdown.Divider className="my-2" />
+                                                <Dropdown.Item
+                                                    onClick={handleLogout}
+                                                    className="user-dropdown-item d-flex align-items-center py-2 text-danger"
+                                                >
+                                                    <div
+                                                        className="me-3 d-flex align-items-center justify-content-center"
+                                                        style={{
+                                                            width: '32px',
+                                                            height: '32px',
+                                                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                                                            borderRadius: '8px',
+                                                            color: '#dc3545'
+                                                        }}
+                                                    >
+                                                        <FiLogOut size={16} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="fw-medium">Sign out</div>
+                                                        <small style={{ color: 'rgba(220, 53, 69, 0.7)' }}>End your current session</small>
+                                                    </div>
                                                 </Dropdown.Item>
                                             </Dropdown.Menu>
                                         </Dropdown>
@@ -777,6 +853,53 @@ const CustomNavbar = () => {
                     box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
                 }
 
+                /* Enhanced User Dropdown Styling */
+                .user-dropdown-toggle:hover {
+                    border-color: rgba(102, 126, 234, 0.3) !important;
+                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+                    transform: translateY(-1px);
+                }
+
+                .user-dropdown-menu {
+                    background: rgba(255, 255, 255, 0.98);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(0, 0, 0, 0.08);
+                }
+
+                .user-dropdown-item {
+                    border-radius: 8px;
+                    margin: 2px 0;
+                    transition: all 0.2s ease;
+                    padding: 8px 12px !important;
+                }
+
+                .user-dropdown-item:hover {
+                    background-color: rgba(102, 126, 234, 0.05);
+                    transform: translateX(4px);
+                }
+
+                .user-dropdown-item.text-danger:hover {
+                    background-color: rgba(220, 53, 69, 0.05);
+                    color: #dc3545 !important;
+                }
+
+                /* Dark mode support */
+                [data-theme="dark"] .user-dropdown-menu {
+                    background: rgba(45, 55, 72, 0.98);
+                    border-color: rgba(255, 255, 255, 0.1);
+                    color: #e2e8f0;
+                }
+
+                [data-theme="dark"] .user-dropdown-item:hover {
+                    background-color: rgba(66, 153, 225, 0.1);
+                    color: #e2e8f0 !important;
+                }
+
+                [data-theme="dark"] .user-dropdown-item.text-danger:hover {
+                    background-color: rgba(220, 53, 69, 0.1);
+                    color: #fc8181 !important;
+                }
+
                 /* Additional styling for mobile */
                 @media (max-width: 991.98px) {
                     .nav-link-custom {
@@ -788,6 +911,39 @@ const CustomNavbar = () => {
                         border-left: 3px solid #0d6efd;
                         padding-left: 13px !important;
                     }
+
+                    .user-dropdown-menu {
+                        margin-top: 4px;
+                        min-width: 200px;
+                    }
+                }
+
+                /* Animation for dropdown items */
+                @keyframes slideInDown {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                .user-dropdown-menu .dropdown-item {
+                    animation: slideInDown 0.2s ease forwards;
+                }
+
+                .user-dropdown-menu .dropdown-item:nth-child(2) {
+                    animation-delay: 0.05s;
+                }
+
+                .user-dropdown-menu .dropdown-item:nth-child(3) {
+                    animation-delay: 0.1s;
+                }
+
+                .user-dropdown-menu .dropdown-item:nth-child(4) {
+                    animation-delay: 0.15s;
                 }
             `}</style>
         </>

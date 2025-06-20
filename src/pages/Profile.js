@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner, Badge, Modal } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { FiUser, FiMail, FiPhone, FiMapPin, FiEdit3, FiSave, FiX, FiCamera, FiBarChart, FiCalendar, FiClock, FiUsers } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiMapPin, FiEdit3, FiSave, FiX, FiCamera, FiBarChart, FiCalendar, FiClock, FiUsers, FiSettings } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 import profileService from '../services/profileService';
-import authService from '../services/authService';
+import integrationsService from '../services/integrationsService';
+import IntegrationCard from '../components/integrations/IntegrationCard';
+import '../styles/integrations.css';
 
 const Profile = () => {
     const { user, login } = useContext(AuthContext);
@@ -28,6 +30,8 @@ const Profile = () => {
     const [userStats, setUserStats] = useState(null);
     const [showAvatarModal, setShowAvatarModal] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState('');
+    const [integrations, setIntegrations] = useState([]);
+    const [integrationsLoading, setIntegrationsLoading] = useState(false);
 
     // Timezone options
     const timezoneOptions = [
@@ -44,10 +48,24 @@ const Profile = () => {
         'Australia/Sydney'
     ];
 
-    // Load profile data on component mount
-    useEffect(() => {
-        loadProfileData();
-        loadUserStats();
+    // Load integrations data
+    const loadIntegrations = useCallback(async () => {
+        setIntegrationsLoading(true);
+        try {
+            const response = await integrationsService.getIntegrations();
+            if (response.success) {
+                setIntegrations(response.data);
+            } else {
+                // Fallback to default integrations
+                setIntegrations(integrationsService.getDefaultIntegrations());
+            }
+        } catch (error) {
+            console.error('Error loading integrations:', error);
+            // Fallback to default integrations
+            setIntegrations(integrationsService.getDefaultIntegrations());
+        } finally {
+            setIntegrationsLoading(false);
+        }
     }, []);
 
     const loadProfileData = useCallback(async () => {
@@ -98,7 +116,7 @@ const Profile = () => {
         } else if (!/\S+@\S+\.\S+/.test(profileData.email)) {
             newErrors.email = "Please enter a valid email address";
         }
-        if (profileData.phone && !/^\+?[\d\s\-\(\)]{10,15}$/.test(profileData.phone)) {
+        if (profileData.phone && !/^\+?[\d\s\-()]{10,15}$/.test(profileData.phone)) {
             newErrors.phone = "Please enter a valid phone number";
         }
 
@@ -243,6 +261,65 @@ const Profile = () => {
             setIsUploadingAvatar(false);
         }
     }, [avatarUrl, profileData, user, login]);
+
+    // Integration handlers
+    const handleConnectIntegration = useCallback(async (integrationType) => {
+        setIntegrationsLoading(true);
+        try {
+            const response = await integrationsService.connectIntegration(integrationType);
+            if (response.success) {
+                setSuccess(`Successfully connected to ${integrationType}!`);
+                loadIntegrations(); // Reload integrations
+            } else {
+                setError(response.error || `Failed to connect to ${integrationType}`);
+            }
+        } catch (error) {
+            console.error(`Error connecting to ${integrationType}:`, error);
+            setError(`Failed to connect to ${integrationType}. Please try again.`);
+        } finally {
+            setIntegrationsLoading(false);
+        }
+    }, [loadIntegrations]);
+
+    const handleDisconnectIntegration = useCallback(async (integrationType) => {
+        setIntegrationsLoading(true);
+        try {
+            const response = await integrationsService.disconnectIntegration(integrationType);
+            if (response.success) {
+                setSuccess(`Successfully disconnected from ${integrationType}!`);
+                loadIntegrations(); // Reload integrations
+            } else {
+                setError(response.error || `Failed to disconnect from ${integrationType}`);
+            }
+        } catch (error) {
+            console.error(`Error disconnecting from ${integrationType}:`, error);
+            setError(`Failed to disconnect from ${integrationType}. Please try again.`);
+        } finally {
+            setIntegrationsLoading(false);
+        }
+    }, [loadIntegrations]);
+
+    const handleConfigureIntegration = useCallback(async (integrationType, config) => {
+        try {
+            const response = await integrationsService.configureIntegration(integrationType, config);
+            if (response.success) {
+                setSuccess(`Successfully configured ${integrationType}!`);
+                loadIntegrations(); // Reload integrations
+            } else {
+                setError(response.error || `Failed to configure ${integrationType}`);
+            }
+        } catch (error) {
+            console.error(`Error configuring ${integrationType}:`, error);
+            setError(`Failed to configure ${integrationType}. Please try again.`);
+        }
+    }, [loadIntegrations]);
+
+    // Load profile data on component mount
+    useEffect(() => {
+        loadProfileData();
+        loadUserStats();
+        loadIntegrations();
+    }, [loadProfileData, loadUserStats, loadIntegrations]);
 
     if (isLoading) {
         return (
@@ -512,6 +589,38 @@ const Profile = () => {
                                         </Col>
                                     </Row>
                                 </Form>
+                            </Card.Body>
+                        </Card>
+
+                        {/* Integrations Section */}
+                        <Card className="card-modern shadow-sm mt-4">
+                            <Card.Body className="p-4">
+                                <div className="d-flex align-items-center justify-content-between mb-4">
+                                    <h4 className="mb-0">
+                                        <FiSettings className="me-2" />
+                                        Connected Integrations
+                                    </h4>
+                                    {integrationsLoading && (
+                                        <Spinner size="sm" animation="border" variant="primary" />
+                                    )}
+                                </div>
+                                <p className="text-muted mb-4">
+                                    Connect your favorite tools to enhance your scheduling workflow.
+                                </p>
+
+                                <Row>
+                                    {integrations.map((integration) => (
+                                        <Col lg={6} key={integration.type} className="mb-4">
+                                            <IntegrationCard
+                                                integration={integration}
+                                                onConnect={handleConnectIntegration}
+                                                onDisconnect={handleDisconnectIntegration}
+                                                onConfigure={handleConfigureIntegration}
+                                                isLoading={integrationsLoading}
+                                            />
+                                        </Col>
+                                    ))}
+                                </Row>
                             </Card.Body>
                         </Card>
                     </Col>

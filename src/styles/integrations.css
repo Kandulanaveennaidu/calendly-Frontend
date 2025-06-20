@@ -1,0 +1,231 @@
+/* Integration Cards Styling */
+.integration-card {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  background: #fff;
+}
+
+.integration-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  border-color: rgba(13, 110, 253, 0.3);
+}
+
+.integration-card .card-body {
+  padding: 1.5rem;
+}
+
+.integration-card .badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+}
+
+.integration-card .btn {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.integration-card .btn:hover {
+  transform: translateY(-1px);
+}
+
+.integration-card .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+}
+
+.integration-card .btn-primary:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.integration-card .btn-outline-secondary {
+  border-color: #dee2e6;
+  color: #6c757d;
+}
+
+.integration-card .btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+  color: #495057;
+}
+
+.integration-card .btn-outline-danger {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.integration-card .btn-outline-danger:hover {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: #fff;
+}
+
+/* Dark mode support for integration cards */
+[data-theme="dark"] .integration-card {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .integration-card:hover {
+  border-color: rgba(66, 153, 225, 0.5);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .integration-card .text-muted {
+  color: #a0aec0 !important;
+}
+
+[data-theme="dark"] .integration-card .btn-outline-secondary {
+  border-color: #4a5568;
+  color: #a0aec0;
+}
+
+[data-theme="dark"] .integration-card .btn-outline-secondary:hover {
+  background-color: #4a5568;
+  border-color: #718096;
+  color: #e2e8f0;
+}
+
+/* Modal styling for integrations */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  padding: 1.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.125);
+  padding: 1rem 1.5rem;
+}
+
+[data-theme="dark"] .modal-content {
+  background: #2d3748;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+  border-color: #4a5568;
+}
+
+/* Form controls styling */
+.form-control-modern {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.form-control-modern:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+[data-theme="dark"] .form-control-modern {
+  background: #4a5568;
+  border-color: #718096;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .form-control-modern:focus {
+  background: #4a5568;
+  border-color: #4299e1;
+  color: #e2e8f0;
+  box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.25);
+}
+
+/* Alert styling */
+.alert {
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+}
+
+.alert-info {
+  background: linear-gradient(
+    135deg,
+    rgba(66, 153, 225, 0.1) 0%,
+    rgba(66, 153, 225, 0.05) 100%
+  );
+  color: #2b6cb0;
+  border-left: 4px solid #4299e1;
+}
+
+[data-theme="dark"] .alert-info {
+  background: rgba(66, 153, 225, 0.2);
+  color: #90cdf4;
+}
+
+/* Animation for integration cards */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.integration-card {
+  animation: slideInUp 0.3s ease forwards;
+}
+
+.integration-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.integration-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.integration-card:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.integration-card:nth-child(5) {
+  animation-delay: 0.4s;
+}
+
+/* Loading state */
+.spinner-border-sm {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* Badge variants */
+.badge.bg-success {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%) !important;
+}
+
+.badge.bg-secondary {
+  background: linear-gradient(135deg, #a0aec0 0%, #718096 100%) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .integration-card {
+    margin-bottom: 1rem;
+  }
+
+  .modal-dialog {
+    margin: 1rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+}

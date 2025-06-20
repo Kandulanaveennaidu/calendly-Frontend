@@ -21,6 +21,8 @@ import PublicScheduling from './pages/PublicScheduling';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Support from './pages/Support';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 
 // Custom Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -49,7 +51,6 @@ const PublicRoute = ({ children }) => {
 
 // App Component with Routing
 const AppRoutes = () => {
-    const { isAuthenticated } = useContext(AuthContext);
     const location = useLocation();
 
     // Hide navbar only on public scheduling page
@@ -105,6 +106,16 @@ const AppRoutes = () => {
                 <Route path="/meeting-types/edit/:id" element={
                     <ProtectedRoute>
                         <EditMeetingType />
+                    </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                    <ProtectedRoute>
+                        <Profile />
+                    </ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                    <ProtectedRoute>
+                        <Settings />
                     </ProtectedRoute>
                 } />
 

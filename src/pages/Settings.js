@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Form, Button, Tab, Tabs, Alert, Badge } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { FiSettings, FiUser, FiCalendar, FiBell, FiShield, FiLink, FiCheck, FiMoon, FiSun, FiVideo } from 'react-icons/fi';
+import { FiSettings, FiCalendar, FiCheck, FiMoon, FiSun, FiVideo } from 'react-icons/fi';
+import integrationsService from '../services/integrationsService';
+import IntegrationCard from '../components/integrations/IntegrationCard';
+import '../styles/integrations.css';
 
 const SettingsPage = () => {
     const [activeTab, setActiveTab] = useState('account');
@@ -23,6 +26,9 @@ const SettingsPage = () => {
         vitelglobal: { connected: false, email: '' } // New VitelGlobal Meet integration
     });
 
+    const [advancedIntegrations, setAdvancedIntegrations] = useState([]);
+    const [integrationsLoading, setIntegrationsLoading] = useState(false);
+
     const [settings, setSettings] = useState({
         emailNotifications: true,
         browserNotifications: true,
@@ -35,6 +41,56 @@ const SettingsPage = () => {
         bufferTime: 15,
         maxBookingsPerDay: 8
     });
+
+    // Utility function to adjust color brightness
+    const adjustColor = (color, amount) => {
+        const usePound = color[0] === '#';
+        const col = usePound ? color.slice(1) : color;
+        const num = parseInt(col, 16);
+        let r = (num >> 16) + amount;
+        let g = ((num >> 8) & 0x00FF) + amount;
+        let b = (num & 0x0000FF) + amount;
+        r = r > 255 ? 255 : r < 0 ? 0 : r;
+        g = g > 255 ? 255 : g < 0 ? 0 : g;
+        b = b > 255 ? 255 : b < 0 ? 0 : b;
+        return (usePound ? '#' : '') + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    };
+
+    // Apply theme function that handles all theme changes
+    const applyTheme = useCallback((theme) => {
+        // Apply primary colors
+        document.documentElement.style.setProperty('--primary-color', theme.primaryColor);
+        document.documentElement.style.setProperty('--secondary-color', theme.secondaryColor);
+        document.documentElement.style.setProperty('--accent-color', theme.accentColor);
+
+        // Apply derived colors (lighten/darken versions for hover states, etc)
+        document.documentElement.style.setProperty('--primary-hover', adjustColor(theme.primaryColor, -20));
+        document.documentElement.style.setProperty('--secondary-hover', adjustColor(theme.secondaryColor, -20));
+        document.documentElement.style.setProperty('--accent-hover', adjustColor(theme.accentColor, -20));
+
+        // Save to localStorage
+        localStorage.setItem('themeSettings', JSON.stringify(theme));
+    }, []);
+
+    // Load advanced integrations
+    const loadAdvancedIntegrations = useCallback(async () => {
+        setIntegrationsLoading(true);
+        try {
+            const response = await integrationsService.getIntegrations();
+            if (response.success) {
+                setAdvancedIntegrations(response.data);
+            } else {
+                // Fallback to default integrations
+                setAdvancedIntegrations(integrationsService.getDefaultIntegrations());
+            }
+        } catch (error) {
+            console.error('Error loading integrations:', error);
+            // Fallback to default integrations
+            setAdvancedIntegrations(integrationsService.getDefaultIntegrations());
+        } finally {
+            setIntegrationsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         // Load saved theme from localStorage on component mount
@@ -52,23 +108,10 @@ const SettingsPage = () => {
                 document.body.classList.add('dark-mode');
             }
         }
-    }, []);
 
-    // Apply theme function that handles all theme changes
-    const applyTheme = (theme) => {
-        // Apply primary colors
-        document.documentElement.style.setProperty('--primary-color', theme.primaryColor);
-        document.documentElement.style.setProperty('--secondary-color', theme.secondaryColor);
-        document.documentElement.style.setProperty('--accent-color', theme.accentColor);
-
-        // Apply derived colors (lighten/darken versions for hover states, etc)
-        document.documentElement.style.setProperty('--primary-hover', adjustColor(theme.primaryColor, -20));
-        document.documentElement.style.setProperty('--secondary-hover', adjustColor(theme.secondaryColor, -20));
-        document.documentElement.style.setProperty('--accent-hover', adjustColor(theme.accentColor, -20));
-
-        // Save to localStorage
-        localStorage.setItem('themeSettings', JSON.stringify(theme));
-    };
+        // Load advanced integrations
+        loadAdvancedIntegrations();
+    }, [applyTheme, loadAdvancedIntegrations]);
 
     // Handle individual color changes
     const handleColorThemeChange = (colorType, color) => {
@@ -126,13 +169,6 @@ const SettingsPage = () => {
         setAlertMessage(`Dark mode ${isDarkMode ? 'enabled' : 'disabled'} successfully!`);
         setShowAlert(true);
         setTimeout(() => setShowAlert(false), 2000);
-    };
-
-    // Helper function to adjust colors (lighten/darken)
-    const adjustColor = (color, amount) => {
-        return '#' + color.replace(/^#/, '').replace(/../g, color =>
-            ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2)
-        );
     };
 
     // Expanded color palettes with more options
@@ -202,6 +238,76 @@ const SettingsPage = () => {
         setTimeout(() => setShowAlert(false), 3000);
     };
 
+    // Integration handlers
+    const handleConnectIntegration = async (integrationType) => {
+        setIntegrationsLoading(true);
+        try {
+            const response = await integrationsService.connectIntegration(integrationType);
+            if (response.success) {
+                setAlertMessage(`Successfully connected to ${integrationType}!`);
+                setShowAlert(true);
+                setTimeout(() => setShowAlert(false), 3000);
+                loadAdvancedIntegrations(); // Reload integrations
+            } else {
+                setAlertMessage(`Failed to connect to ${integrationType}: ${response.error}`);
+                setShowAlert(true);
+                setTimeout(() => setShowAlert(false), 5000);
+            }
+        } catch (error) {
+            console.error(`Error connecting to ${integrationType}:`, error);
+            setAlertMessage(`Failed to connect to ${integrationType}. Please try again.`);
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 5000);
+        } finally {
+            setIntegrationsLoading(false);
+        }
+    };
+
+    const handleDisconnectIntegration = async (integrationType) => {
+        setIntegrationsLoading(true);
+        try {
+            const response = await integrationsService.disconnectIntegration(integrationType);
+            if (response.success) {
+                setAlertMessage(`Successfully disconnected from ${integrationType}!`);
+                setShowAlert(true);
+                setTimeout(() => setShowAlert(false), 3000);
+                loadAdvancedIntegrations(); // Reload integrations
+            } else {
+                setAlertMessage(`Failed to disconnect from ${integrationType}: ${response.error}`);
+                setShowAlert(true);
+                setTimeout(() => setShowAlert(false), 5000);
+            }
+        } catch (error) {
+            console.error(`Error disconnecting from ${integrationType}:`, error);
+            setAlertMessage(`Failed to disconnect from ${integrationType}. Please try again.`);
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 5000);
+        } finally {
+            setIntegrationsLoading(false);
+        }
+    };
+
+    const handleConfigureIntegration = async (integrationType, config) => {
+        try {
+            const response = await integrationsService.configureIntegration(integrationType, config);
+            if (response.success) {
+                setAlertMessage(`Successfully configured ${integrationType}!`);
+                setShowAlert(true);
+                setTimeout(() => setShowAlert(false), 3000);
+                loadAdvancedIntegrations(); // Reload integrations
+            } else {
+                setAlertMessage(`Failed to configure ${integrationType}: ${response.error}`);
+                setShowAlert(true);
+                setTimeout(() => setShowAlert(false), 5000);
+            }
+        } catch (error) {
+            console.error(`Error configuring ${integrationType}:`, error);
+            setAlertMessage(`Failed to configure ${integrationType}. Please try again.`);
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 5000);
+        }
+    };
+
     const handleToggleIntegration = (service) => {
         setIntegrations(prev => ({
             ...prev,
@@ -214,22 +320,22 @@ const SettingsPage = () => {
 
     const handleOutlookConnect = async () => {
         try {
-            // Microsoft Graph API configuration
-            const msalConfig = {
-                auth: {
-                    clientId: process.env.REACT_APP_AZURE_CLIENT_ID || 'demo-client-id',
-                    authority: 'https://login.microsoftonline.com/common',
-                    redirectUri: window.location.origin
-                }
-            };
+            // Microsoft Graph API configuration (for production use)
+            // const msalConfig = {
+            //     auth: {
+            //         clientId: process.env.REACT_APP_AZURE_CLIENT_ID || 'demo-client-id',
+            //         authority: 'https://login.microsoftonline.com/common',
+            //         redirectUri: window.location.origin
+            //     }
+            // };
 
-            const loginRequest = {
-                scopes: [
-                    'https://graph.microsoft.com/calendars.readwrite',
-                    'https://graph.microsoft.com/user.read',
-                    'offline_access'
-                ]
-            };
+            // const loginRequest = {
+            //     scopes: [
+            //         'https://graph.microsoft.com/calendars.readwrite',
+            //         'https://graph.microsoft.com/user.read',
+            //         'offline_access'
+            //     ]
+            // };
 
             // For production, use MSAL library
             // import { PublicClientApplication } from '@azure/msal-browser';
@@ -810,7 +916,42 @@ const SettingsPage = () => {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 className="p-4"
                                             >
-                                                <h5 className="fw-bold mb-4">Calendar & Video Integrations</h5>
+                                                <div className="d-flex align-items-center justify-content-between mb-4">
+                                                    <div>
+                                                        <h5 className="fw-bold mb-2">Advanced Integrations</h5>
+                                                        <p className="text-muted mb-0">
+                                                            Connect your favorite tools to enhance your scheduling workflow with advanced features.
+                                                        </p>
+                                                    </div>
+                                                    {integrationsLoading && (
+                                                        <div className="d-flex align-items-center gap-2 text-muted">
+                                                            <div className="spinner-border spinner-border-sm" role="status"></div>
+                                                            <span>Loading...</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Advanced Integration Cards */}
+                                                <Row className="g-4 mb-5">
+                                                    {advancedIntegrations.map((integration) => (
+                                                        <Col lg={6} key={integration.type}>
+                                                            <IntegrationCard
+                                                                integration={integration}
+                                                                onConnect={handleConnectIntegration}
+                                                                onDisconnect={handleDisconnectIntegration}
+                                                                onConfigure={handleConfigureIntegration}
+                                                                isLoading={integrationsLoading}
+                                                            />
+                                                        </Col>
+                                                    ))}
+                                                </Row>
+
+                                                <hr className="my-5" />
+
+                                                <h5 className="fw-bold mb-4">Legacy Integrations</h5>
+                                                <p className="text-muted mb-4">
+                                                    Basic integrations with simplified configuration.
+                                                </p>
 
                                                 {/* Enhanced Outlook Integration Card */}
                                                 <Card className="mb-3 border">
